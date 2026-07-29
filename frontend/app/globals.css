@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+@theme {
+  --color-beige-50: #faf7f2;
+  --color-beige-100: #f3ece1;
+  --color-beige-200: #e8dcc8;
+  --color-beige-300: #d9c6a5;
+  --color-beige-400: #c4a878;
+  --color-beige-500: #a98b5a;
+  --color-beige-600: #8a6f47;
+  --color-beige-700: #6b5638;
+  --color-beige-800: #4a3c28;
+  --color-beige-900: #2e2419;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

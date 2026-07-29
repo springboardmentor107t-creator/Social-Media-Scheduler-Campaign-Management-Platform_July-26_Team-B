@@ -2,24 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "../../lib/auth";
+import { register } from "../../lib/auth";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     try {
-      await login(email, password);
-      router.push("/profile");
+      await register({ name, email, password });
+      router.push("/login");
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      setError("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -32,10 +40,10 @@ export default function LoginPage() {
         className="bg-beige-50 p-10 rounded-2xl shadow-lg border border-beige-300 w-full max-w-md"
       >
         <h1 className="text-3xl font-semibold mb-2 text-center text-beige-900">
-          Welcome Back
+          Create Account
         </h1>
         <p className="text-center text-beige-600 mb-8 text-sm">
-          Login to your account
+          Sign up to get started
         </p>
 
         {error && (
@@ -43,6 +51,20 @@ export default function LoginPage() {
             {error}
           </p>
         )}
+
+        <div className="mb-5">
+          <label className="block mb-1.5 text-sm font-medium text-beige-800">
+            Full Name
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder="Your name"
+            className="w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition"
+          />
+        </div>
 
         <div className="mb-5">
           <label className="block mb-1.5 text-sm font-medium text-beige-800">
@@ -58,7 +80,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-5">
           <label className="block mb-1.5 text-sm font-medium text-beige-800">
             Password
           </label>
@@ -72,18 +94,32 @@ export default function LoginPage() {
           />
         </div>
 
+        <div className="mb-6">
+          <label className="block mb-1.5 text-sm font-medium text-beige-800">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            placeholder="••••••••"
+            className="w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-beige-700 text-white py-2.5 rounded-lg font-medium hover:bg-beige-800 active:scale-[0.98] transition disabled:opacity-50"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Creating account..." : "Register"}
         </button>
 
         <p className="text-center text-sm text-beige-600 mt-6">
-          Don't have an account?{" "}
-          <a href="/register" className="text-beige-800 font-medium hover:underline">
-            Register
+          Already have an account?{" "}
+          <a href="/login" className="text-beige-800 font-medium hover:underline">
+            Login
           </a>
         </p>
       </form>
