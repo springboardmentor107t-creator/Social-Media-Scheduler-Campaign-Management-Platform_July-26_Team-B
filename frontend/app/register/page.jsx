@@ -10,6 +10,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -32,6 +34,9 @@ export default function RegisterPage() {
       setLoading(false);
     }
   }
+
+  const inputClass =
+    "w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white text-beige-900 focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition [-webkit-text-fill-color:#2e2419] autofill:bg-white";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-beige-100 px-4">
@@ -62,7 +67,7 @@ export default function RegisterPage() {
             onChange={(e) => setName(e.target.value)}
             required
             placeholder="Your name"
-            className="w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition"
+            className={inputClass}
           />
         </div>
 
@@ -76,7 +81,7 @@ export default function RegisterPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="you@example.com"
-            className="w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition"
+            className={inputClass}
           />
         </div>
 
@@ -84,28 +89,46 @@ export default function RegisterPage() {
           <label className="block mb-1.5 text-sm font-medium text-beige-800">
             Password
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            className="w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className={inputClass + " pr-12"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-beige-500 text-sm"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
         </div>
 
         <div className="mb-6">
           <label className="block mb-1.5 text-sm font-medium text-beige-800">
             Confirm Password
           </label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-            className="w-full px-4 py-2.5 border border-beige-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-beige-500 focus:border-transparent transition"
-          />
+          <div className="relative">
+            <input
+              type={showConfirm ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className={inputClass + " pr-12"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm(!showConfirm)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-beige-500 text-sm"
+            >
+              {showConfirm ? "Hide" : "Show"}
+            </button>
+          </div>
         </div>
 
         <button
