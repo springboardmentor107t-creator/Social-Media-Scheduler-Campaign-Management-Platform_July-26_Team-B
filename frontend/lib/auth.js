@@ -18,13 +18,22 @@ export function isLoggedIn() {
 }
 
 export async function register(data) {
-  const response = await api.post("/auth/register", data);
+  const response = await api.post("/api/v1/auth/register", {
+    email: data.email,
+    full_name: data.name,
+    role: "creator",
+    password: data.password,
+  });
   return response.data;
 }
 
 export async function login(email, password) {
-  const response = await api.post("/auth/login", { email, password });
-  const token = response.data.token || response.data.access_token;
+  const response = await api.post("/api/v1/auth/login/json", {
+    email,
+    password,
+  });
+
+  const token = response.data.access_token || response.data.token;
   if (token) {
     setToken(token);
   }

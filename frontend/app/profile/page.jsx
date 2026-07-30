@@ -24,8 +24,8 @@ export default function ProfilePage() {
 
   async function fetchProfile() {
     try {
-      const response = await api.get("/users/me");
-      setName(response.data.name || "");
+      const response = await api.get("/api/v1/auth/me");
+      setName(response.data.full_name || "");
       setEmail(response.data.email || "");
     } catch (err) {
       setError("Could not load profile.");
@@ -40,7 +40,7 @@ export default function ProfilePage() {
     setMessage("");
     setSaving(true);
     try {
-      await api.put("/users/me", { name, email });
+      await api.put("/api/v1/auth/me", { full_name: name, email });
       setMessage("Profile updated successfully.");
     } catch (err) {
       setError("Update failed. Please try again.");
@@ -126,6 +126,13 @@ export default function ProfilePage() {
             Logout
           </button>
         </form>
+
+        <a
+          href="/social-accounts"
+          className="block text-center mt-6 text-beige-800 font-medium hover:underline text-sm"
+        >
+          Manage Social Accounts →
+        </a>
       </div>
     </div>
   );

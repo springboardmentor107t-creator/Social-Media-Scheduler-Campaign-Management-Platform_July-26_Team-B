@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { isLoggedIn } from "../../lib/auth";
 import api from "../../lib/api";
 
-const PLATFORMS = ["Twitter", "Instagram", "LinkedIn", "Facebook"];
+const PLATFORMS = ["facebook", "instagram", "linkedin", "twitter", "youtube", "pinterest"];
 
 export default function SocialAccountsPage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function SocialAccountsPage() {
 
   async function fetchAccounts() {
     try {
-      const response = await api.get("/social-accounts");
+      const response = await api.get("/api/v1/social-accounts/");
       setAccounts(response.data || []);
     } catch (err) {
       setError("Could not load connected accounts.");
@@ -36,7 +36,12 @@ export default function SocialAccountsPage() {
   async function handleConnect(platform) {
     setActionLoading(platform);
     try {
-      await api.post("/social-accounts/connect", { platform });
+      await api.post("/api/v1/social-accounts/connect", {
+        platform,
+        account_name: `${platform}_account`,
+        platform_user_id: `demo_${platform}_id`,
+        access_token: "demo_access_token",
+      });
       await fetchAccounts();
     } catch (err) {
       setError(`Could not connect ${platform}.`);
@@ -48,7 +53,7 @@ export default function SocialAccountsPage() {
   async function handleDisconnect(id) {
     setActionLoading(id);
     try {
-      await api.delete(`/social-accounts/${id}`);
+      await api.delete(`/api/v1/social-accounts/${id}`);
       await fetchAccounts();
     } catch (err) {
       setError("Could not disconnect account.");
@@ -75,9 +80,16 @@ export default function SocialAccountsPage() {
         <h1 className="text-3xl font-semibold mb-2 text-center text-beige-900">
           Social Accounts
         </h1>
-        <p className="text-center text-beige-600 mb-8 text-sm">
+        <p className="text-center text-beige-600 mb-6 text-sm">
           Connect your social media accounts to manage them here
         </p>
+        <a
+        
+          href="/profile"
+          className="block text-center mb-6 text-beige-800 font-medium hover:underline text-sm"
+        >
+          ← Back to Profile
+        </a>
 
         {error && (
           <p className="bg-beige-200 text-beige-800 text-sm mb-6 text-center py-2 px-3 rounded-lg">
@@ -96,9 +108,9 @@ export default function SocialAccountsPage() {
                 className="bg-beige-50 border border-beige-300 rounded-xl p-5 flex items-center justify-between shadow-sm"
               >
                 <div>
-                  <p className="font-medium text-beige-900">{platform}</p>
+                  <p className="font-medium text-beige-900 capitalize">{platform}</p>
                   <p className="text-sm text-beige-600">
-                    {connected ? `Connected as ${connected.handle || "account"}` : "Not connected"}
+                    {connected ? `Connected as ${connected.account_name || "account"}` : "Not connected"}
                   </p>
                 </div>
 
