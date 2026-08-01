@@ -42,4 +42,7 @@ export async function login(email, password) {
 
 export function logout() {
   clearToken();
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
 }
