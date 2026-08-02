@@ -68,7 +68,10 @@ export default function DashboardShell({ children }) {
             {config.landingDesc}
           </p>
         </div>
-        <button className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium shadow-md shadow-brand-500/20 active:scale-[0.98] transition-all">
+        <button
+          onClick={() => router.push("/posts/create")}
+          className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium shadow-md shadow-brand-500/20 active:scale-[0.98] transition-all"
+        >
           {config.primaryAction}
         </button>
       </div>
