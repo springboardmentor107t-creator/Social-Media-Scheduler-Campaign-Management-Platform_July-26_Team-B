@@ -1,3 +1,23 @@
+export const roleOptions = [
+  {
+    value: "creator",
+    label: "Content Creator",
+    description: "Create and schedule your own posts",
+    icon: "✏️",
+  },
+  {
+    value: "marketing",
+    label: "Marketing Team",
+    description: "Manage campaigns and team-wide content",
+    icon: "📊",
+  },
+  {
+    value: "business",
+    label: "Business User",
+    description: "Oversee accounts and business presence",
+    icon: "💼",
+  },
+];
 export const roleConfig = {
   creator: {
     label: "Creator",

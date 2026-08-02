@@ -21,7 +21,7 @@ export async function register(data) {
   const response = await api.post("/api/v1/auth/register", {
     email: data.email,
     full_name: data.name,
-    role: "creator",
+    role: data.role,
     password: data.password,
   });
   return response.data;

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { register } from "../../lib/auth";
+import { roleOptions } from "../../lib/roleConfig";
 import Link from "next/link";
 import { evaluatePasswordStrength } from "../../lib/passwordStrength";
 
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,12 +23,13 @@ export default function RegisterPage() {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
+    setRole("");
     setError("");
   }, []);
 
   const strength = evaluatePasswordStrength(password);
   const passwordMatch = password && password === confirmPassword;
-  const canSubmit = strength.score >= 4 && passwordMatch;
+  const canSubmit = strength.score >= 4 && passwordMatch && role;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -44,7 +47,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register({ name, email, password });
+      await register({ name, email, password, role });
       router.push("/login");
     } catch (err) {
       setError("Registration failed. Please try again.");
@@ -91,6 +94,46 @@ export default function RegisterPage() {
                 autoComplete="off"
                 className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
               />
+            </div>
+            <div>
+              <label className="block mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                I am a...
+              </label>
+              <div className="grid grid-cols-1 gap-2.5">
+                {roleOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setRole(opt.value)}
+                    className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
+                      role === opt.value
+                        ? "border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/30"
+                        : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white/30 dark:bg-zinc-900/30"
+                    }`}
+                  >
+                    <span className="text-2xl">{opt.icon}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm text-slate-900 dark:text-white">
+                        {opt.label}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {opt.description}
+                      </p>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                        role === opt.value
+                          ? "border-brand-500 bg-brand-500"
+                          : "border-slate-300 dark:border-slate-700"
+                      }`}
+                    >
+                      {role === opt.value && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div>
