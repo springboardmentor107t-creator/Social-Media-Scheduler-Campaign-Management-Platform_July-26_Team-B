@@ -92,7 +92,7 @@ export default function RegisterPage() {
                 required
                 placeholder="John Doe"
                 autoComplete="off"
-                className="surface-field w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
               />
             </div>
             <div>
@@ -147,7 +147,7 @@ export default function RegisterPage() {
                 required
                 placeholder="you@example.com"
                 autoComplete="off"
-                className="surface-field w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
               />
             </div>
 
@@ -162,7 +162,7 @@ export default function RegisterPage() {
                 required
                 placeholder="••••••••"
                 autoComplete="new-password"
-                className="surface-field w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                className="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
               />
               {password && (
                 <div className="mt-2">

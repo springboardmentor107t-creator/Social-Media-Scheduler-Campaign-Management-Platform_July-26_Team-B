@@ -53,7 +53,7 @@ export default function DashboardShell({ children }) {
   const config = roleConfig[role] || roleConfig.creator;
 
   return (
-    <div className="flex-1 w-full max-w-[1600px] mx-auto px-6 py-6 md:px-10 md:py-10 animate-in fade-in duration-500">
+    <div className="flex-1 w-full max-w-6xl mx-auto p-6 md:py-12 animate-in fade-in duration-500">
       
       {/* Dashboard Header / Landing View */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -76,9 +76,9 @@ export default function DashboardShell({ children }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Sidebar Nav */}
-        <div className="lg:col-span-1 space-y-2">
+        <div className="md:col-span-1 space-y-2">
           <h2 className="text-lg font-bold tracking-tight mb-4 px-2 text-slate-800 dark:text-slate-200">Menu</h2>
           <div className="flex flex-col gap-1">
             {config.navItems.map((item) => {
@@ -101,7 +101,7 @@ export default function DashboardShell({ children }) {
         </div>
 
         {/* Main Content Area */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="md:col-span-3 space-y-6">
           {children}
         </div>
       </div>

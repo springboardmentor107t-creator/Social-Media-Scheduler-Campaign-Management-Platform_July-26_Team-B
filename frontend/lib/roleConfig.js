@@ -17,12 +17,6 @@ export const roleOptions = [
     description: "Oversee accounts and business presence",
     icon: "💼",
   },
-  {
-    value: "admin",
-    label: "Administrator",
-    description: "Full platform access and user management",
-    icon: "🛡️",
-  },
 ];
 export const roleConfig = {
   creator: {
@@ -32,13 +26,13 @@ export const roleConfig = {
     landingDesc: "Manage your scheduled and draft posts.",
     primaryAction: "Create Post",
     navItems: [
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/profile" },
       { name: "Create Post", href: "/posts/create" },
       { name: "Drafts", href: "/drafts" },
       { name: "Queue", href: "/queue" },
       { name: "Calendar", href: "/calendar" },
       { name: "Connected Accounts", href: "/social-accounts" },
-      { name: "Settings", href: "/settings" },
+      { name: "Profile", href: "/profile" },
     ],
   },
   marketing: {
@@ -48,13 +42,13 @@ export const roleConfig = {
     landingDesc: "Overview of all team-wide scheduled content.",
     primaryAction: "Create Campaign",
     navItems: [
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/profile" },
       { name: "Create Post", href: "/posts/create" },
       { name: "Drafts", href: "/drafts" },
       { name: "Queue", href: "/queue" },
       { name: "Calendar", href: "/calendar" },
       { name: "Connected Accounts", href: "/social-accounts" },
-      { name: "Settings", href: "/settings" },
+      { name: "Profile", href: "/profile" },
     ],
   },
   business: {
@@ -64,14 +58,14 @@ export const roleConfig = {
     landingDesc: "Manage connected accounts and view summary.",
     primaryAction: "Connect Account",
     navItems: [
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/profile" },
       { name: "Create Post", href: "/posts/create" },
       { name: "Drafts", href: "/drafts" },
       { name: "Queue", href: "/queue" },
       { name: "Calendar", href: "/calendar" },
       { name: "Connected Accounts", href: "/social-accounts" },
-      { name: "Billing", href: "/billing" },
-      { name: "Settings", href: "/settings" },
+      { name: "Billing", href: "#" },
+      { name: "Profile", href: "/profile" },
     ],
   },
   admin: {
@@ -81,16 +75,16 @@ export const roleConfig = {
     landingDesc: "View all users and system activity.",
     primaryAction: "Manage Users",
     navItems: [
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/profile" },
       { name: "Create Post", href: "/posts/create" },
       { name: "Drafts", href: "/drafts" },
       { name: "Queue", href: "/queue" },
       { name: "Calendar", href: "/calendar" },
-      { name: "All Users", href: "/admin/users" },
-      { name: "All Content", href: "/admin/content" },
+      { name: "All Users", href: "#" },
+      { name: "All Content", href: "#" },
       { name: "System Settings", href: "#" },
       { name: "Connected Accounts", href: "/social-accounts" },
-      { name: "Settings", href: "/settings" },
+      { name: "Profile", href: "/profile" },
     ],
   },
 };
