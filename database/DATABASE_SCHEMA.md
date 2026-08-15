@@ -1,72 +1,15 @@
 # SocialPilot Database Schema
 
-## Overview
-
-The SocialPilot platform uses both PostgreSQL and MongoDB to manage application data.
-
-- **PostgreSQL** — Stores structured relational application data.
-- **MongoDB** — Stores flexible content and media metadata.
-- **SQLAlchemy** — Used as the ORM for PostgreSQL.
-- **Alembic** — Used for PostgreSQL database migrations.
-- **PyMongo** — Used for MongoDB connectivity.
-
-The database has been developed progressively across Milestone 1, Milestone 2, and Milestone 3.
-
----
-
 # Database Architecture
 
 SocialPilot uses two databases:
 
-## PostgreSQL
-
-PostgreSQL stores structured relational data such as:
-
-- Users
-- Roles
-- User-role mappings
-- Teams
-- Team members
-- Social platforms
-- Social accounts
-- Social account permissions
-- Scheduled posts
-- Publishing logs
-- Campaigns
-- Campaign platforms
-- Campaign contents
-- Campaign performance
-- Audience growth
-
-Database name:
-
-```text
-socialpilot_db
-```
-
-## MongoDB
-
-MongoDB stores flexible metadata for:
-
-- Social media content
-- Media files
-
-Database name:
-
-```text
-socialpilot_db
-```
-
-Collections:
-
-```text
-content_metadata
-media_metadata
-```
+- **PostgreSQL** — Stores structured relational data such as users, roles, teams, social accounts, scheduled posts, and publishing logs.
+- **MongoDB** — Stores flexible content and media metadata.
 
 ---
 
-# Milestone 1 – User, Role, Social Account and Team Management
+# PostgreSQL Tables
 
 ## users
 
@@ -85,12 +28,12 @@ Stores registered users.
 
 ## roles
 
-Stores Role-Based Access Control (RBAC) roles.
+Stores RBAC (Role-Based Access Control) roles.
 
 - id — Primary Key
 - name — Unique
 
-Default roles:
+Default Roles:
 
 - Content Creator
 - Marketing Team
@@ -108,14 +51,7 @@ Maps users to roles.
 
 Primary Key:
 
-```text
 (user_id, role_id)
-```
-
-Relationship:
-
-- One user can have multiple roles.
-- One role can be assigned to multiple users.
 
 ---
 
@@ -126,12 +62,12 @@ Stores supported social media platforms.
 - id — Primary Key
 - name — Unique
 
-Supported platforms include:
+Platforms include:
 
 - Facebook
 - Instagram
 - LinkedIn
-- X
+- X (Twitter)
 - YouTube
 - Pinterest
 
@@ -154,16 +90,9 @@ Stores social media accounts connected by users.
 - created_at
 - updated_at
 
-Unique constraint:
+Unique:
 
-```text
 (platform_id, platform_user_id)
-```
-
-Relationship:
-
-- One user can connect multiple social accounts.
-- One social platform can have multiple connected accounts.
 
 ---
 
@@ -177,27 +106,20 @@ Stores permissions granted to connected social accounts.
 - is_granted
 - created_at
 
-Unique constraint:
+Unique:
 
-```text
 (social_account_id, permission_name)
-```
 
 ---
 
 ## teams
 
-Stores teams created within the SocialPilot system.
+Stores teams.
 
 - id — Primary Key
 - name
 - owner_id — Foreign Key → users.id
 - created_at
-
-Relationship:
-
-- One user can own multiple teams.
-- Each team has one owner.
 
 ---
 
@@ -211,22 +133,15 @@ Maps users to teams.
 
 Primary Key:
 
-```text
 (team_id, user_id)
-```
-
-Relationship:
-
-- One team can have multiple members.
-- One user can belong to multiple teams.
 
 ---
 
-# Milestone 2 – Content Scheduling and Publishing
+# Milestone 2 – Content Scheduling & Publishing
 
 ## scheduled_posts
 
-Stores social media posts created by users and scheduled for publishing.
+Stores posts created by users that are scheduled for future publishing.
 
 - id — Primary Key
 - user_id — Foreign Key → users.id
@@ -234,20 +149,13 @@ Stores social media posts created by users and scheduled for publishing.
 - title
 - content
 - scheduled_time
-- status
+- status (Draft / Scheduled / Published / Failed)
 - is_recurring
 - recurrence_pattern
 - created_at
 - updated_at
 
-Possible status values:
-
-- Draft
-- Scheduled
-- Published
-- Failed
-
-Relationships:
+Relationship:
 
 - One user can create many scheduled posts.
 - One social account can have many scheduled posts.
@@ -261,15 +169,10 @@ Stores the publishing history of scheduled posts.
 - id — Primary Key
 - scheduled_post_id — Foreign Key → scheduled_posts.id
 - published_at
-- status
+- status (Success / Failed)
 - platform_response
 - error_message
 - created_at
-
-Possible status values:
-
-- Success
-- Failed
 
 Relationship:
 
@@ -277,7 +180,7 @@ Relationship:
 
 ---
 
-# Entity Relationship Diagram – Milestone 1 and Milestone 2
+# Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -304,11 +207,9 @@ erDiagram
 
 # MongoDB
 
-MongoDB is used for flexible data that does not require the same relational structure as PostgreSQL.
-
 Database:
 
-```text
+```
 socialpilot_db
 ```
 
@@ -316,7 +217,7 @@ socialpilot_db
 
 Stores flexible metadata associated with social media content.
 
-Example fields:
+Example Fields:
 
 - user_id
 - title
@@ -330,9 +231,9 @@ Example fields:
 
 ## media_metadata
 
-Stores metadata associated with media files.
+Stores metadata for media associated with content.
 
-Example fields:
+Example Fields:
 
 - user_id
 - file_name
@@ -340,521 +241,3 @@ Example fields:
 - file_size
 - storage_url
 - created_at
-
----
-
-# Milestone 3 – Campaign Management and Analytics
-
-Milestone 3 extends the existing SocialPilot database to support:
-
-- Campaign management
-- Campaign-content relationships
-- Campaign performance
-- Engagement analytics
-- Audience growth tracking
-- ROI analysis
-- Campaign reporting
-- Platform-wise campaign performance
-
----
-
-## campaigns
-
-Stores marketing campaigns created by users.
-
-- id — Primary Key
-- user_id — Foreign Key → users.id
-- name
-- start_date
-- end_date
-- budget
-- goal
-- status
-- created_at
-- updated_at
-
-Relationship:
-
-- One user can create multiple campaigns.
-- Each campaign belongs to one user.
-
----
-
-## campaign_platforms
-
-Maps campaigns to the social media platforms where they are executed.
-
-- id — Primary Key
-- campaign_id — Foreign Key → campaigns.id
-- platform_id — Foreign Key → social_platforms.id
-
-Unique constraint:
-
-```text
-(campaign_id, platform_id)
-```
-
-Relationship:
-
-- One campaign can use multiple social media platforms.
-- One social platform can be used by multiple campaigns.
-
----
-
-## campaign_contents
-
-Links campaigns with scheduled social media posts.
-
-- id — Primary Key
-- campaign_id — Foreign Key → campaigns.id
-- scheduled_post_id — Foreign Key → scheduled_posts.id
-- created_at
-
-Unique constraint:
-
-```text
-(campaign_id, scheduled_post_id)
-```
-
-Relationship:
-
-- One campaign can contain multiple scheduled posts.
-- A scheduled post can be associated with a campaign.
-
----
-
-## campaign_performance
-
-Stores campaign engagement and performance metrics.
-
-- id — Primary Key
-- campaign_id — Foreign Key → campaigns.id
-- platform_id — Foreign Key → social_platforms.id
-- spend
-- impressions
-- reach
-- likes
-- comments
-- shares
-- conversions
-- roi
-- recorded_at
-
-Metrics include:
-
-- Impressions
-- Reach
-- Likes
-- Comments
-- Shares
-- Conversions
-- Spend
-- ROI
-
-Relationship:
-
-- One campaign can have multiple performance records.
-- Performance can be recorded for individual social platforms.
-
----
-
-## audience_growth
-
-Stores audience and follower growth associated with campaigns.
-
-- id — Primary Key
-- campaign_id — Foreign Key → campaigns.id
-- platform_id — Foreign Key → social_platforms.id
-- followers
-- recorded_at
-
-Relationship:
-
-- One campaign can have multiple audience growth records.
-- Audience growth can be tracked separately for each social platform.
-
----
-
-# Entity Relationship Diagram – Milestone 3
-
-```mermaid
-erDiagram
-
-    USERS ||--o{ USER_ROLES : has
-    ROLES ||--o{ USER_ROLES : assigned
-
-    USERS ||--o{ SOCIAL_ACCOUNTS : connects
-    SOCIAL_PLATFORMS ||--o{ SOCIAL_ACCOUNTS : platform
-
-    SOCIAL_ACCOUNTS ||--o{ SOCIAL_ACCOUNT_PERMISSIONS : has
-
-    USERS ||--o{ TEAMS : owns
-    USERS ||--o{ TEAM_MEMBERS : joins
-    TEAMS ||--o{ TEAM_MEMBERS : contains
-
-    USERS ||--o{ SCHEDULED_POSTS : creates
-    SOCIAL_ACCOUNTS ||--o{ SCHEDULED_POSTS : publishes
-
-    SCHEDULED_POSTS ||--o{ PUBLISHING_LOGS : generates
-
-    USERS ||--o{ CAMPAIGNS : creates
-
-    CAMPAIGNS ||--o{ CAMPAIGN_PLATFORMS : uses
-    SOCIAL_PLATFORMS ||--o{ CAMPAIGN_PLATFORMS : supports
-
-    CAMPAIGNS ||--o{ CAMPAIGN_CONTENTS : contains
-    SCHEDULED_POSTS ||--o{ CAMPAIGN_CONTENTS : included
-
-    CAMPAIGNS ||--o{ CAMPAIGN_PERFORMANCE : tracks
-    SOCIAL_PLATFORMS ||--o{ CAMPAIGN_PERFORMANCE : measures
-
-    CAMPAIGNS ||--o{ AUDIENCE_GROWTH : tracks
-    SOCIAL_PLATFORMS ||--o{ AUDIENCE_GROWTH : measures
-```
-
----
-
-# Milestone 3 – Database Relationships
-
-The Milestone 3 database extends the existing SocialPilot workflow.
-
-```text
-Users
-  |
-  └── Campaigns
-        |
-        ├── Campaign Platforms
-        |       |
-        |       └── Social Platforms
-        |
-        ├── Campaign Contents
-        |       |
-        |       └── Scheduled Posts
-        |
-        ├── Campaign Performance
-        |       |
-        |       └── Social Platforms
-        |
-        └── Audience Growth
-                |
-                └── Social Platforms
-```
-
----
-
-# Complete Campaign Workflow
-
-The database supports the following end-to-end workflow:
-
-```text
-User
-  ↓
-Create Campaign
-  ↓
-Select Social Platforms
-  ↓
-Create / Schedule Content
-  ↓
-Publish Scheduled Posts
-  ↓
-Track Campaign Performance
-  ↓
-Track Engagement
-  ↓
-Track Audience Growth
-  ↓
-Calculate ROI
-  ↓
-Generate Campaign Reports
-```
-
----
-
-# Milestone 3 Analytics Data
-
-The database supports storage for:
-
-- Engagement analytics
-- Impressions
-- Reach
-- Likes
-- Comments
-- Shares
-- Conversions
-- Campaign spending
-- ROI metrics
-- Audience growth
-- Follower tracking
-- Platform-wise campaign performance
-- Campaign comparison
-- Campaign reporting
-
----
-
-# Sample Milestone 3 Data
-
-Sample campaign and analytics data has been inserted into PostgreSQL for testing and verification.
-
-## Sample Campaign
-
-Campaign:
-
-```text
-MS3 Test Campaign
-```
-
-Budget:
-
-```text
-5000
-```
-
-Goal:
-
-```text
-Engagement
-```
-
-Status:
-
-```text
-Active
-```
-
----
-
-## Sample Campaign Platform
-
-Campaign:
-
-```text
-MS3 Test Campaign
-```
-
-Platform:
-
-```text
-Instagram
-```
-
----
-
-## Sample Campaign Content
-
-Campaign:
-
-```text
-MS3 Test Campaign
-```
-
-Scheduled Post:
-
-```text
-Milestone 2 Demo Post
-```
-
----
-
-## Sample Campaign Performance
-
-Spend:
-
-```text
-1200
-```
-
-Impressions:
-
-```text
-15000
-```
-
-Reach:
-
-```text
-10000
-```
-
-Likes:
-
-```text
-850
-```
-
-Comments:
-
-```text
-120
-```
-
-Shares:
-
-```text
-75
-```
-
-Conversions:
-
-```text
-45
-```
-
-ROI:
-
-```text
-2.75
-```
-
----
-
-## Sample Audience Growth
-
-Platform:
-
-```text
-Instagram
-```
-
-Followers:
-
-```text
-12500
-```
-
----
-
-# Database Migration
-
-Alembic is used to manage PostgreSQL schema migrations.
-
-The Milestone 3 migration adds the following tables:
-
-```text
-campaigns
-campaign_platforms
-campaign_contents
-campaign_performance
-audience_growth
-```
-
-Migration revision:
-
-```text
-1ecee61dca88
-```
-
-Migration status:
-
-```text
-1ecee61dca88 (head)
-```
-
-The Milestone 3 migration was successfully applied to PostgreSQL.
-
----
-
-# Milestone 3 Database Status
-
-Completed:
-
-- Campaign management schema created
-- Campaign-platform relationships configured
-- Campaign-content relationships configured
-- Campaign performance data storage implemented
-- Engagement metrics storage implemented
-- Audience growth data storage implemented
-- ROI data storage implemented
-- Sample campaign data inserted
-- Sample campaign-platform data inserted
-- Sample campaign-content data inserted
-- Sample performance data inserted
-- Sample audience growth data inserted
-- Alembic migration created
-- Database migration successfully applied
-- PostgreSQL schema verified
-- SQLAlchemy models verified
-- Campaign database insertion tested
-- Campaign analytics data insertion tested
-
----
-
-# Final Database Architecture
-
-The SocialPilot database now supports the complete social media management and campaign analytics workflow.
-
-```text
-PostgreSQL
-│
-├── User Management
-│   ├── users
-│   ├── roles
-│   └── user_roles
-│
-├── Team Management
-│   ├── teams
-│   └── team_members
-│
-├── Social Account Management
-│   ├── social_platforms
-│   ├── social_accounts
-│   └── social_account_permissions
-│
-├── Content Scheduling & Publishing
-│   ├── scheduled_posts
-│   └── publishing_logs
-│
-└── Campaign Management & Analytics
-    ├── campaigns
-    ├── campaign_platforms
-    ├── campaign_contents
-    ├── campaign_performance
-    └── audience_growth
-```
-
-```text
-MongoDB
-│
-├── content_metadata
-└── media_metadata
-```
-
----
-
-# Technology Stack
-
-The database layer uses:
-
-- PostgreSQL
-- MongoDB
-- SQLAlchemy
-- Alembic
-- PyMongo
-- Python
-
----
-
-# Milestone 3 Outcome
-
-The SocialPilot database is now ready to support the workflow from:
-
-```text
-Content Creation
-       ↓
-Content Scheduling
-       ↓
-Social Media Publishing
-       ↓
-Campaign Management
-       ↓
-Campaign Performance Tracking
-       ↓
-Engagement Analytics
-       ↓
-Audience Growth Tracking
-       ↓
-ROI Analysis
-       ↓
-Campaign Reporting
-```
-
-The database foundation now supports the SocialPilot workflow from content scheduling and publishing through campaign management, performance tracking, engagement analytics, audience growth, ROI analysis, and campaign reporting.
