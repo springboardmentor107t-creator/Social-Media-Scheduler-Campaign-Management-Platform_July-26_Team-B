@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { isLoggedIn, logout } from "../lib/auth";
 import api from "../lib/api";
-import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const router = useRouter();
@@ -49,7 +48,7 @@ export default function Navbar() {
     : "";
 
   return (
-    <header className="nav-surface sticky top-0 z-50 w-full border-b backdrop-blur-md transition-colors duration-300">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-bold tracking-tight">
@@ -60,9 +59,7 @@ export default function Navbar() {
         {!checked ? (
           <div className="w-8 h-8" />
         ) : user ? (
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <div className="relative">
+          <div className="relative">
             <button
               onClick={() => setMenuOpen((v) => !v)}
               className="flex items-center gap-2.5 pl-1 pr-3 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-zinc-900 transition-colors"
@@ -115,7 +112,6 @@ export default function Navbar() {
               </>
             )}
           </div>
-        </div>
         ) : (
           <nav className="flex items-center gap-6 text-sm font-medium">
             <Link

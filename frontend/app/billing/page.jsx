@@ -70,7 +70,7 @@ export default function BillingPage() {
       const me = response.data;
       setCurrentUser(me);
 
-      if (me.role !== "business") {
+      if (me.role !== "business" && me.role !== "admin") {
         router.push("/profile");
         return;
       }
