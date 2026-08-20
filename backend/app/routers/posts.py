@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -31,12 +31,20 @@ def save_draft(
 
 @router.get("", response_model=List[PostResponse])
 def list_posts(
-    status_filter: Optional[PostStatus] = None,
+    status: Optional[str] = Query(None),
+    status_filter: Optional[str] = Query(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    selected_status = status or status_filter
+    status_enum = None
+    if selected_status:
+        try:
+            status_enum = PostStatus(selected_status.lower())
+        except ValueError:
+            pass
     service = PostService(db)
-    return service.get_user_posts(current_user.id, status=status_filter)
+    return service.get_user_posts(current_user.id, status=status_enum)
 
 @router.get("/{post_id}", response_model=PostResponse)
 def get_post(
@@ -57,6 +65,26 @@ def update_post(
     service = PostService(db)
     return service.update_post(post_id, current_user.id, post_in)
 
+@router.patch("/{post_id}", response_model=PostResponse)
+def patch_post(
+    post_id: int,
+    post_in: PostUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    service = PostService(db)
+    return service.update_post(post_id, current_user.id, post_in)
+
+@router.post("/{post_id}/retry", response_model=PostResponse)
+def retry_post_endpoint(
+    post_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    service = PostService(db)
+    post_in = PostUpdate(status=PostStatus.SCHEDULED)
+    return service.update_post(post_id, current_user.id, post_in)
+
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(
     post_id: int,
@@ -66,3 +94,4 @@ def delete_post(
     service = PostService(db)
     service.delete_post(post_id, current_user.id)
     return None
+

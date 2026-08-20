@@ -17,6 +17,12 @@ export const roleOptions = [
     description: "Oversee accounts and business presence",
     icon: "💼",
   },
+  {
+    value: "admin",
+    label: "Administrator",
+    description: "Manage all users and platform settings",
+    icon: "⚙️",
+  },
 ];
 export const roleConfig = {
   creator: {
@@ -73,7 +79,7 @@ export const roleConfig = {
       { name: "Queue", href: "/queue" },
       { name: "Calendar", href: "/calendar" },
       { name: "Connected Accounts", href: "/social-accounts" },
-      { name: "Billing", href: "#" },
+      { name: "Billing", href: "/billing" },
       { name: "Profile", href: "/profile" },
     ],
   },
@@ -92,9 +98,9 @@ export const roleConfig = {
       { name: "Drafts", href: "/drafts" },
       { name: "Queue", href: "/queue" },
       { name: "Calendar", href: "/calendar" },
-      { name: "All Users", href: "#" },
-      { name: "All Content", href: "#" },
-      { name: "System Settings", href: "#" },
+      { name: "All Users", href: "/admin/users" },
+      { name: "All Content", href: "/admin/content" },
+      { name: "System Settings", href: "/settings" },
       { name: "Connected Accounts", href: "/social-accounts" },
       { name: "Profile", href: "/profile" },
     ],

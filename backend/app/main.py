@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.database import engine, Base, close_mongo_connection
-from app.routers import auth, posts, schedules, calendar, queue, workflow, logs, analytics, campaigns, reports, audience
+from app.routers import auth, posts, schedules, calendar, queue, workflow, logs, analytics, campaigns, reports, audience, social_accounts, users, admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -32,6 +33,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Adjust as necessary for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Register API Routers
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(posts.router, prefix=settings.API_V1_STR)
@@ -44,6 +53,9 @@ app.include_router(analytics.router, prefix=settings.API_V1_STR)
 app.include_router(campaigns.router, prefix=settings.API_V1_STR)
 app.include_router(reports.router, prefix=settings.API_V1_STR)
 app.include_router(audience.router, prefix=settings.API_V1_STR)
+app.include_router(social_accounts.router, prefix=settings.API_V1_STR)
+app.include_router(users.router, prefix=settings.API_V1_STR)
+app.include_router(admin.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def read_root():

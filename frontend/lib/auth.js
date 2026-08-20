@@ -20,7 +20,7 @@ export function isLoggedIn() {
 export async function register(data) {
   const response = await api.post("/api/v1/auth/register", {
     email: data.email,
-    full_name: data.name,
+    username: data.name,
     role: data.role,
     password: data.password,
   });

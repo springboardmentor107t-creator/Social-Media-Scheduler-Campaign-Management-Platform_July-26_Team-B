@@ -10,6 +10,7 @@ class PostStatus(str, enum.Enum):
     SCHEDULED = "scheduled"
     PUBLISHED = "published"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 class RecurrencePattern(str, enum.Enum):
     DAILY = "daily"

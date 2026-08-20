@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { isLoggedIn } from "../../lib/auth";
-import { getQueue, retryPost, cancelPost } from "../../lib/posts";
+import { getPosts, retryPost, cancelPost } from "../../lib/posts";
 import DashboardShell from "../../components/DashboardShell";
 import StatusBadge from "../../components/StatusBadge";
 
@@ -25,11 +25,31 @@ const TABS = [
 ];
 
 const EMPTY_COPY = {
-  "": { title: "No posts yet", desc: "Everything you schedule or publish will show up here." },
-  scheduled: { title: "Nothing scheduled", desc: "Posts you schedule for later will appear here." },
-  published: { title: "Nothing published yet", desc: "Posts that go live will show up here." },
-  failed: { title: "No failed posts — nice!", desc: "Publishing issues will appear here if they happen." },
-  cancelled: { title: "No cancelled posts", desc: "Posts you cancel will be listed here." },
+  "": { 
+    icon: "📭",
+    title: "No posts in queue", 
+    desc: "Everything you create, schedule, or publish will show up here." 
+  },
+  scheduled: { 
+    icon: "⏰",
+    title: "Nothing scheduled", 
+    desc: "Posts you schedule for automated publishing will appear in this section." 
+  },
+  published: { 
+    icon: "🚀",
+    title: "Nothing published yet", 
+    desc: "Posts that successfully go live to your social channels will be listed here." 
+  },
+  failed: { 
+    icon: "✨",
+    title: "No failed posts — all clear!", 
+    desc: "Any posts encountering publishing or network issues will appear here for retry." 
+  },
+  cancelled: { 
+    icon: "🛑",
+    title: "No cancelled posts", 
+    desc: "Posts that you actively cancel will be retained here for your records." 
+  },
 };
 
 function formatDateTime(dateStr) {
@@ -45,12 +65,12 @@ function formatDateTime(dateStr) {
 
 function SkeletonRow() {
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 animate-pulse">
-      <div className="flex-1 space-y-2">
-        <div className="h-3.5 bg-slate-200 dark:bg-slate-800 rounded w-2/3" />
-        <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+    <div className="flex items-center gap-4 p-5 rounded-2xl border border-surface-border bg-surface/50 animate-pulse">
+      <div className="flex-1 space-y-2.5">
+        <div className="h-4 bg-background-secondary rounded w-2/3" />
+        <div className="h-3 bg-background-secondary rounded w-1/3" />
       </div>
-      <div className="h-6 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
+      <div className="h-7 w-24 bg-background-secondary rounded-full" />
     </div>
   );
 }
@@ -70,13 +90,13 @@ export default function QueuePage() {
       return;
     }
     fetchQueue();
-  }, [activeTab]);
+  }, []);
 
   async function fetchQueue() {
     setLoading(true);
     setError("");
     try {
-      const data = await getQueue(activeTab || undefined);
+      const data = await getPosts();
       setPosts(data || []);
     } catch (err) {
       setError("Could not load the publishing queue.");
@@ -89,7 +109,9 @@ export default function QueuePage() {
     setActionId(id);
     try {
       await retryPost(id);
-      await fetchQueue();
+      setPosts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: "scheduled" } : p))
+      );
     } catch (err) {
       setError("Retry failed. Please try again.");
     } finally {
@@ -101,7 +123,9 @@ export default function QueuePage() {
     setActionId(id);
     try {
       await cancelPost(id);
-      setPosts((prev) => prev.filter((p) => p.id !== id));
+      setPosts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: "cancelled" } : p))
+      );
       setConfirmCancelId(null);
     } catch (err) {
       setError("Could not cancel this post.");
@@ -110,111 +134,154 @@ export default function QueuePage() {
     }
   }
 
+  // Calculate live counts for all status tabs
+  const counts = {
+    all: posts.length,
+    scheduled: posts.filter((p) => (p.status || "").toLowerCase() === "scheduled").length,
+    published: posts.filter((p) => (p.status || "").toLowerCase() === "published").length,
+    failed: posts.filter((p) => (p.status || "").toLowerCase() === "failed").length,
+    cancelled: posts.filter((p) => (p.status || "").toLowerCase() === "cancelled").length,
+  };
+
+  // Strictly filter posts matching current active tab
+  const filteredPosts = posts.filter((post) => {
+    if (!activeTab) return true;
+    return (post.status || "").toLowerCase() === activeTab.toLowerCase();
+  });
+
   const emptyCopy = EMPTY_COPY[activeTab] || EMPTY_COPY[""];
 
   return (
     <DashboardShell>
-      <div className="glass-panel p-8 rounded-3xl">
-        <div className="flex items-center justify-between mb-6">
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl">
+        {/* Header section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold mb-1 tracking-tight">Publishing Queue</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Track scheduled, published, and failed posts.
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              Publishing Queue
+            </h1>
+            <p className="text-foreground-muted text-sm mt-1">
+              Track, organize, and manage scheduled, published, failed, and cancelled posts.
             </p>
           </div>
           <button
             onClick={() => router.push("/posts/create")}
-            className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium shadow-md shadow-brand-500/20 active:scale-[0.98] transition-all"
+            className="px-5 py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-semibold shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 active:scale-[0.98] transition-all self-start sm:self-auto"
           >
             + New Post
           </button>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-1 p-1 mb-6 rounded-xl bg-slate-100 dark:bg-zinc-900/50 border border-slate-200 dark:border-slate-800 w-fit overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setActiveTab(tab.value)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                activeTab === tab.value
-                  ? "bg-white dark:bg-zinc-800 shadow-sm text-brand-600 dark:text-brand-400"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Filter tabs with dynamic count badges */}
+        <div className="flex gap-1.5 p-1.5 mb-6 rounded-2xl bg-background-secondary border border-surface-border w-fit overflow-x-auto max-w-full">
+          {TABS.map((tab) => {
+            const countKey = tab.value || "all";
+            const count = counts[countKey] ?? 0;
+            const isActive = activeTab === tab.value;
+            return (
+              <button
+                key={tab.value}
+                onClick={() => setActiveTab(tab.value)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+                  isActive
+                    ? "bg-surface shadow-sm text-brand-600 font-bold"
+                    : "text-foreground-muted hover:text-foreground hover:bg-surface/50"
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-bold transition-colors ${
+                    isActive
+                      ? "bg-brand-500/10 text-brand-600"
+                      : "bg-surface-border/60 text-foreground-subtle"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm mb-6 py-3 px-4 rounded-xl">
-            {error}
+          <div className="bg-red-500/10 border border-red-500/20 text-red-600 text-sm mb-6 py-3 px-4 rounded-xl flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError("")} className="text-red-500 hover:text-red-700 text-xs font-bold">
+              ✕
+            </button>
           </div>
         )}
 
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4].map((i) => (
               <SkeletonRow key={i} />
             ))}
           </div>
-        ) : posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-zinc-900 flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
+        ) : filteredPosts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-300">
+            <div className="w-16 h-16 rounded-2xl bg-background-secondary flex items-center justify-center mb-4 text-3xl shadow-inner">
+              {emptyCopy.icon}
             </div>
-            <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">
+            <h3 className="text-lg font-bold text-foreground mb-1">
               {emptyCopy.title}
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
+            <p className="text-sm text-foreground-muted max-w-sm">
               {emptyCopy.desc}
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-zinc-900/40 hover:shadow-md transition-all"
+                className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border border-surface-border bg-surface/60 hover:bg-surface hover:shadow-md transition-all group"
               >
-                {/* Content + platforms */}
+                {/* Content + platforms + timeline */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-700 dark:text-slate-300 truncate mb-1.5">
-                    {post.content || "Empty post"}
+                  <p className="text-sm font-medium text-foreground truncate mb-2">
+                    {post.content || "Empty post content"}
                   </p>
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
-                    <div className="flex items-center gap-1">
-                      {(post.platforms || []).map((p) => (
-                        <span
-                          key={p}
-                          title={PLATFORM_META[p]?.label}
-                          className={`w-3.5 h-3.5 rounded-full ${PLATFORM_META[p]?.color || "bg-slate-400"}`}
-                        />
-                      ))}
-                    </div>
-                    <span>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-foreground-muted">
+                    {post.platforms && post.platforms.length > 0 && (
+                      <div className="flex items-center gap-1.5 pr-2 border-r border-divider">
+                        {post.platforms.map((p) => (
+                          <span
+                            key={p}
+                            title={PLATFORM_META[p]?.label || p}
+                            className={`w-3.5 h-3.5 rounded-full ${
+                              PLATFORM_META[p]?.color || "bg-background-secondary"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <span className="font-medium text-foreground-subtle">
                       {post.status === "published"
-                        ? `Published ${formatDateTime(post.published_at)}`
-                        : formatDateTime(post.scheduled_at)}
+                        ? `Published ${formatDateTime(post.updated_at || post.published_at || post.created_at)}`
+                        : post.status === "failed"
+                        ? `Failed ${formatDateTime(post.updated_at || post.created_at)}`
+                        : post.status === "cancelled"
+                        ? `Cancelled ${formatDateTime(post.updated_at || post.created_at)}`
+                        : `Scheduled for ${formatDateTime(post.scheduled_at || post.created_at)}`}
                     </span>
                   </div>
                   {post.status === "failed" && post.error_message && (
-                    <p className="text-xs text-red-500 mt-1.5">{post.error_message}</p>
+                    <p className="text-xs text-red-500 mt-2 bg-red-500/5 p-2 rounded-lg border border-red-500/10">
+                      {post.error_message}
+                    </p>
                   )}
                 </div>
 
-                {/* Status + actions */}
-                <div className="flex items-center gap-3 md:flex-shrink-0">
+                {/* Status Badge + Action Buttons */}
+                <div className="flex items-center gap-3 flex-shrink-0 self-end md:self-auto">
                   <StatusBadge status={post.status} />
 
                   {post.status === "failed" && (
                     <button
                       onClick={() => handleRetry(post.id)}
                       disabled={actionId === post.id}
-                      className="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium disabled:opacity-60 transition-colors"
+                      className="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-sm active:scale-95 disabled:opacity-60 transition-all"
                     >
                       {actionId === post.id ? "Retrying..." : "Retry"}
                     </button>
@@ -222,25 +289,25 @@ export default function QueuePage() {
 
                   {post.status === "scheduled" &&
                     (confirmCancelId === post.id ? (
-                      <div className="flex gap-1.5">
+                      <div className="flex items-center gap-1.5 animate-in fade-in">
                         <button
                           onClick={() => handleCancel(post.id)}
                           disabled={actionId === post.id}
-                          className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-medium disabled:opacity-60"
+                          className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-semibold active:scale-95 disabled:opacity-60 transition-all shadow-sm"
                         >
                           {actionId === post.id ? "..." : "Confirm"}
                         </button>
                         <button
                           onClick={() => setConfirmCancelId(null)}
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-medium"
+                          className="px-3 py-1.5 rounded-xl border border-surface-border text-foreground-muted hover:text-foreground text-xs font-semibold hover:bg-background-secondary transition-all"
                         >
-                          Never mind
+                          Keep
                         </button>
                       </div>
                     ) : (
                       <button
                         onClick={() => setConfirmCancelId(post.id)}
-                        className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="px-3.5 py-1.5 rounded-xl border border-surface-border text-foreground-subtle hover:text-red-600 hover:border-red-500/30 text-xs font-medium hover:bg-background-secondary transition-all"
                       >
                         Cancel
                       </button>

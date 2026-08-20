@@ -10,30 +10,36 @@ from app.core.security import get_password_hash
 import random
 
 def seed_data(db: Session):
+    # Ensure users of all roles exist
+    seed_users_data = [
+        {"username": "admin", "email": "admin@socialpilot.io", "role": "admin", "password": "adminpassword"},
+        {"username": "sarah_creator", "email": "sarah@socialpilot.io", "role": "creator", "password": "password123"},
+        {"username": "alex_marketing", "email": "alex@socialpilot.io", "role": "marketing", "password": "password123"},
+        {"username": "david_business", "email": "david@socialpilot.io", "role": "business", "password": "password123"},
+        {"username": "testuser", "email": "testuser@example.com", "role": "admin", "password": "testpassword"},
+    ]
+    created_users = {}
+    for u_data in seed_users_data:
+        existing = db.query(User).filter(User.username == u_data["username"]).first()
+        if not existing:
+            u_obj = User(
+                username=u_data["username"],
+                email=u_data["email"],
+                hashed_password=get_password_hash(u_data["password"]),
+                role=u_data["role"]
+            )
+            db.add(u_obj)
+            db.commit()
+            db.refresh(u_obj)
+            created_users[u_data["username"]] = u_obj
+        else:
+            created_users[u_data["username"]] = existing
+            
+    user = created_users.get("testuser") or created_users.get("alex_marketing")
+
     # Check if we already have campaigns seeded to avoid duplicates
     if db.query(Campaign).first() is not None:
-        print("Database already contains data, skipping seeding.")
         return
-
-    # 1. Get or create test user
-    user = db.query(User).filter(User.username == "testuser").first()
-    if not user:
-        user = User(
-            username="testuser",
-            email="testuser@example.com",
-            hashed_password=get_password_hash("testpassword"),
-            role="marketing" # Set to marketing role so campaigns & analytics are visible
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-        print(f"Created test user: {user.email}")
-    else:
-        # Update user role to marketing if it is 'user' to ensure proper menu items load
-        if user.role == "user":
-            user.role = "marketing"
-            db.commit()
-            db.refresh(user)
 
     # 2. Seed Campaigns
     campaigns = [

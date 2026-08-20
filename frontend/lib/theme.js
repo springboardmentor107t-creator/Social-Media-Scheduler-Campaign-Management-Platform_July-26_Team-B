@@ -1,8 +1,8 @@
 const THEME_KEY = "socialpilot_theme";
 
 export const THEMES = [
-  { value: "system", label: "System" },
-  { value: "dark", label: "Dark" },
+  { value: "system", label: "System Glossy" },
+  { value: "peach", label: "Peach" },
   { value: "cream", label: "Light Cream" },
 ];
 
@@ -18,14 +18,10 @@ export function applyTheme(theme) {
   html.classList.remove("dark");
   html.removeAttribute("data-theme");
 
-  if (theme === "dark") {
-    html.classList.add("dark");
+  if (theme === "peach") {
+    html.setAttribute("data-theme", "peach");
   } else if (theme === "cream") {
     html.setAttribute("data-theme", "cream");
-  } else {
-    // system: follow OS preference
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (prefersDark) html.classList.add("dark");
   }
 
   localStorage.setItem(THEME_KEY, theme);
