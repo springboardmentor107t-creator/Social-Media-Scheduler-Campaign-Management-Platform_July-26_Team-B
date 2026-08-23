@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SocialPilot database supports the complete social media management workflow from user management and social account management to content scheduling, publishing, campaign management, and analytics.
+The SocialPilot database supports the complete social media management workflow from user management and social account management to content scheduling, publishing, campaign management, analytics, and database query optimization.
 
 The system uses two databases:
 
@@ -43,7 +43,7 @@ PostgreSQL stores structured relational application data including:
 
 Database name:
 
-```text
+```
 socialpilot_db
 ```
 
@@ -53,13 +53,13 @@ MongoDB stores flexible content and media metadata.
 
 Database name:
 
-```text
+```
 socialpilot_db
 ```
 
 Collections:
 
-```text
+```
 content_metadata
 media_metadata
 ```
@@ -110,7 +110,7 @@ Fields:
 
 Primary Key:
 
-```text
+```
 (user_id, role_id)
 ```
 
@@ -158,7 +158,7 @@ Fields:
 
 Unique:
 
-```text
+```
 (platform_id, platform_user_id)
 ```
 
@@ -181,7 +181,7 @@ Fields:
 
 Unique:
 
-```text
+```
 (social_account_id, permission_name)
 ```
 
@@ -217,7 +217,7 @@ Fields:
 
 Primary Key:
 
-```text
+```
 (team_id, user_id)
 ```
 
@@ -250,7 +250,7 @@ Fields:
 
 Status values:
 
-```text
+```
 Draft
 Scheduled
 Published
@@ -278,7 +278,7 @@ Fields:
 
 Status values:
 
-```text
+```
 Success
 Failed
 ```
@@ -333,6 +333,12 @@ Fields:
 - campaign_id — Foreign Key → campaigns.id
 - platform_id — Foreign Key → social_platforms.id
 
+Unique:
+
+```
+(campaign_id, platform_id)
+```
+
 Relationship:
 
 - One campaign can use multiple social media platforms.
@@ -350,6 +356,12 @@ Fields:
 - campaign_id — Foreign Key → campaigns.id
 - scheduled_post_id — Foreign Key → scheduled_posts.id
 - created_at
+
+Unique:
+
+```
+(campaign_id, scheduled_post_id)
+```
 
 Relationship:
 
@@ -453,6 +465,7 @@ erDiagram
 
 # Database Relationship Flow
 
+```text
 Users
   |
   +---- Roles
@@ -478,6 +491,7 @@ Users
                                          +---- Campaign Performance
                                          |
                                          +---- Audience Growth
+```
 
 ---
 
@@ -487,7 +501,7 @@ MongoDB is used for flexible data that does not require the same relational stru
 
 Database:
 
-```text
+```
 socialpilot_db
 ```
 
@@ -566,39 +580,85 @@ Alembic is used to manage PostgreSQL database schema migrations.
 
 ## Milestone 1 migrations
 
-```text
+```
 a43fe8bad829_baseline_existing_schema.py
 1a2b6503f504_add_bio_to_users.py
 ```
 
 ## Milestone 2 migration
 
-```text
+```
 4da2f08bcb8f_add_scheduled_posts_and_publishing_logs.py
 ```
 
 ## Milestone 3 migration
 
-```text
+```
 1ecee61dca88_add_campaign_management_and_analytics.py
+```
+
+## Milestone 4 migration
+
+```
+fb1dae61a8e9_optimize_database_queries_for_milestone_.py
+```
+
+Milestone 4 migration revision:
+
+```
+fb1dae61a8e9
+```
+
+Milestone 4 previous revision:
+
+```
+1ecee61dca88
+```
+
+Migration chain:
+
+```
+<base>
+   ↓
+a43fe8bad829
+   ↓
+1a2b6503f504
+   ↓
+4da2f08bcb8f
+   ↓
+1ecee61dca88
+   ↓
+fb1dae61a8e9
 ```
 
 Check current migration:
 
-```text
-alembic current
+```
+python -m alembic -c database\alembic.ini current
 ```
 
 Apply migrations:
 
-```text
-alembic upgrade head
+```
+python -m alembic -c database\alembic.ini upgrade head
 ```
 
 Rollback one migration:
 
-```text
-alembic downgrade -1
+```
+python -m alembic -c database\alembic.ini downgrade -1
+```
+
+View migration history:
+
+```
+python -m alembic -c database\alembic.ini history
+```
+
+View migration heads:
+
+```
+python -m alembic -c database\alembic.ini heads
 ```
 
 ---
@@ -663,6 +723,600 @@ Completed:
 
 ---
 
+# Milestone 4 – Database Query Optimization
+
+Milestone 4 focuses on improving the performance of frequently used campaign and analytics queries by adding appropriate PostgreSQL indexes.
+
+The optimization was implemented using Alembic so that the database changes are version-controlled, repeatable, and reversible.
+
+## Milestone 4 Objectives
+
+The main objectives are:
+
+- Optimize campaign listing queries.
+- Optimize campaign content lookup queries.
+- Optimize campaign performance queries.
+- Optimize audience growth queries.
+- Add indexes to frequently filtered columns.
+- Add composite indexes for filtering and sorting.
+- Verify that the indexes are created successfully.
+- Test important queries using `EXPLAIN ANALYZE`.
+- Keep the database migration chain consistent.
+- Update the database documentation and ER diagram.
+
+---
+
+# Milestone 4 Migration
+
+Migration file:
+
+```
+database/alembic/versions/fb1dae61a8e9_optimize_database_queries_for_milestone_.py
+```
+
+Revision ID:
+
+```
+fb1dae61a8e9
+```
+
+Previous revision:
+
+```
+1ecee61dca88
+```
+
+Migration description:
+
+```
+optimize database queries for milestone 4
+```
+
+Migration relationship:
+
+```
+1ecee61dca88 -> fb1dae61a8e9
+```
+
+---
+
+# Milestone 4 Indexes
+
+The following indexes were added for database optimization:
+
+| Index Name | Table | Columns | Purpose |
+|---|---|---|---|
+| `ix_campaigns_user_status_created` | `campaigns` | `user_id, status, created_at` | Optimizes campaign listing |
+| `ix_campaign_contents_campaign_id` | `campaign_contents` | `campaign_id` | Optimizes campaign content lookup |
+| `ix_campaign_performance_campaign_platform_date` | `campaign_performance` | `campaign_id, platform_id, recorded_at` | Optimizes campaign performance lookup |
+| `ix_audience_growth_campaign_platform_date` | `audience_growth` | `campaign_id, platform_id, recorded_at` | Optimizes audience growth lookup |
+
+---
+
+# Campaign Listing Query Optimization
+
+Frequently used query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM campaigns
+WHERE user_id = 1
+  AND status = 'active'
+ORDER BY created_at DESC;
+```
+
+Index:
+
+```
+ix_campaigns_user_status_created
+```
+
+Columns:
+
+```
+user_id
+status
+created_at
+```
+
+Purpose:
+
+- Filters campaigns by user.
+- Filters campaigns by status.
+- Supports ordering by `created_at`.
+- Improves campaign listing queries when the campaigns table becomes larger.
+
+---
+
+# Campaign Content Query Optimization
+
+Frequently used query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM campaign_contents
+WHERE campaign_id = 1;
+```
+
+Index:
+
+```
+ix_campaign_contents_campaign_id
+```
+
+Column:
+
+```
+campaign_id
+```
+
+Purpose:
+
+- Quickly finds content belonging to a campaign.
+- Improves campaign-content lookup operations.
+
+---
+
+# Campaign Performance Query Optimization
+
+Frequently used query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM campaign_performance
+WHERE campaign_id = 1
+  AND platform_id = 1
+ORDER BY recorded_at DESC;
+```
+
+Index:
+
+```
+ix_campaign_performance_campaign_platform_date
+```
+
+Columns:
+
+```
+campaign_id
+platform_id
+recorded_at
+```
+
+Purpose:
+
+- Filters performance records by campaign.
+- Filters performance records by platform.
+- Supports ordering by recording date.
+- Improves campaign performance history queries.
+
+---
+
+# Audience Growth Query Optimization
+
+Frequently used query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM audience_growth
+WHERE campaign_id = 1
+  AND platform_id = 1
+ORDER BY recorded_at DESC;
+```
+
+Index:
+
+```
+ix_audience_growth_campaign_platform_date
+```
+
+Columns:
+
+```
+campaign_id
+platform_id
+recorded_at
+```
+
+Purpose:
+
+- Filters audience growth records by campaign.
+- Filters audience growth records by platform.
+- Supports ordering by recording date.
+- Improves audience growth history queries.
+
+---
+
+# Complete Milestone 4 Migration Code
+
+```python
+"""optimize database queries for milestone 4
+
+Revision ID: fb1dae61a8e9
+Revises: 1ecee61dca88
+Create Date: 2026-08-23
+
+"""
+
+from typing import Sequence, Union
+
+from alembic import op
+
+
+# revision identifiers, used by Alembic.
+revision: str = "fb1dae61a8e9"
+down_revision: Union[str, Sequence[str], None] = "1ecee61dca88"
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Add indexes for frequently used campaign queries."""
+
+    op.create_index(
+        "ix_campaigns_user_status_created",
+        "campaigns",
+        ["user_id", "status", "created_at"],
+    )
+
+    op.create_index(
+        "ix_campaign_contents_campaign_id",
+        "campaign_contents",
+        ["campaign_id"],
+    )
+
+    op.create_index(
+        "ix_campaign_performance_campaign_platform_date",
+        "campaign_performance",
+        ["campaign_id", "platform_id", "recorded_at"],
+    )
+
+    op.create_index(
+        "ix_audience_growth_campaign_platform_date",
+        "audience_growth",
+        ["campaign_id", "platform_id", "recorded_at"],
+    )
+
+
+def downgrade() -> None:
+    """Remove Milestone 4 performance indexes."""
+
+    op.drop_index(
+        "ix_audience_growth_campaign_platform_date",
+        table_name="audience_growth",
+    )
+
+    op.drop_index(
+        "ix_campaign_performance_campaign_platform_date",
+        table_name="campaign_performance",
+    )
+
+    op.drop_index(
+        "ix_campaign_contents_campaign_id",
+        table_name="campaign_contents",
+    )
+
+    op.drop_index(
+        "ix_campaigns_user_status_created",
+        table_name="campaigns",
+    )
+```
+
+---
+
+# Milestone 4 Migration Execution
+
+The migration was executed using:
+
+```powershell
+python -m alembic -c database\alembic.ini upgrade head
+```
+
+Successful result:
+
+```text
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 1ecee61dca88 -> fb1dae61a8e9, optimize database queries for milestone 4
+```
+
+This confirms that the Milestone 4 migration was successfully applied.
+
+---
+
+# Milestone 4 Migration Verification
+
+Command:
+
+```powershell
+python -m alembic -c database\alembic.ini current
+```
+
+Result:
+
+```text
+fb1dae61a8e9 (head)
+```
+
+This confirms that the database is currently at the Milestone 4 revision.
+
+---
+
+# Milestone 4 Migration History
+
+Command:
+
+```powershell
+python -m alembic -c database\alembic.ini history
+```
+
+Migration history:
+
+```text
+1ecee61dca88 -> fb1dae61a8e9, optimize database queries for milestone 4
+4da2f08bcb8f -> 1ecee61dca88, add campaign management and analytics
+1a2b6503f504 -> 4da2f08bcb8f, add scheduled posts and publishing logs
+a43fe8bad829 -> 1a2b6503f504, add bio to users
+<base> -> a43fe8bad829, baseline existing schema
+```
+
+---
+
+# Milestone 4 PostgreSQL Index Verification
+
+The indexes were verified directly in PostgreSQL using:
+
+```sql
+\di
+```
+
+The Milestone 4 indexes verified in PostgreSQL are:
+
+```text
+ix_campaigns_user_status_created
+ix_campaign_contents_campaign_id
+ix_campaign_performance_campaign_platform_date
+ix_audience_growth_campaign_platform_date
+```
+
+These indexes exist on:
+
+```text
+campaigns
+campaign_contents
+campaign_performance
+audience_growth
+```
+
+---
+
+# Milestone 4 Query Performance Testing
+
+## Campaign Listing Test
+
+Query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM campaigns
+WHERE user_id = 1
+  AND status = 'active'
+ORDER BY created_at DESC;
+```
+
+Observed test result:
+
+```text
+Execution Time: 0.090 ms
+```
+
+The query was successfully executed and its execution plan was inspected.
+
+---
+
+## Campaign Performance Test
+
+Query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM campaign_performance
+WHERE campaign_id = 1
+  AND platform_id = 1
+ORDER BY recorded_at DESC;
+```
+
+Observed test result:
+
+```text
+Execution Time: 0.107 ms
+```
+
+The query was successfully executed and its execution plan was inspected.
+
+---
+
+## Audience Growth Test
+
+Query:
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM audience_growth
+WHERE campaign_id = 1
+  AND platform_id = 1
+ORDER BY recorded_at DESC;
+```
+
+Observed test result:
+
+```text
+Execution Time: 0.057 ms
+```
+
+The query was successfully executed and its execution plan was inspected.
+
+---
+
+# Note About Sequential Scan During Testing
+
+During the Milestone 4 tests, PostgreSQL selected `Seq Scan` for the tested queries.
+
+This is expected because the current development database contains only a very small amount of data.
+
+For small tables, PostgreSQL may determine that scanning the table is cheaper than using an index.
+
+Therefore, seeing `Seq Scan` in the current development test does not mean that the indexes were created incorrectly.
+
+The indexes are intended to improve performance as the amount of campaign, performance, and audience-growth data increases.
+
+The important verification is that:
+
+- The migration completed successfully.
+- The indexes were created successfully.
+- The indexes are visible in PostgreSQL.
+- The required queries execute successfully.
+- The database migration is at the Milestone 4 head revision.
+
+---
+
+# Milestone 4 Optimization Flow
+
+```text
+Frequently Used Query
+        |
+        v
+Identify WHERE Conditions
+        |
+        v
+Identify ORDER BY Columns
+        |
+        v
+Create Suitable Index
+        |
+        v
+Create Alembic Migration
+        |
+        v
+Run Migration
+        |
+        v
+Verify Database Indexes
+        |
+        v
+Run EXPLAIN ANALYZE
+        |
+        v
+Verify Query Execution
+```
+
+---
+
+# Updated Complete Entity Relationship Diagram
+
+Milestone 4 does not introduce a new business entity or table. It optimizes the existing Milestone 3 campaign and analytics tables.
+
+Therefore, the ER relationships remain the same while the following tables now contain additional performance indexes:
+
+- campaigns
+- campaign_contents
+- campaign_performance
+- audience_growth
+
+```mermaid
+erDiagram
+
+    USERS ||--o{ USER_ROLES : has
+    ROLES ||--o{ USER_ROLES : assigned_to
+
+    USERS ||--o{ SOCIAL_ACCOUNTS : connects
+    SOCIAL_PLATFORMS ||--o{ SOCIAL_ACCOUNTS : belongs_to
+
+    SOCIAL_ACCOUNTS ||--o{ SOCIAL_ACCOUNT_PERMISSIONS : has
+
+    USERS ||--o{ TEAMS : owns
+    USERS ||--o{ TEAM_MEMBERS : joins
+    TEAMS ||--o{ TEAM_MEMBERS : contains
+
+    USERS ||--o{ SCHEDULED_POSTS : creates
+    SOCIAL_ACCOUNTS ||--o{ SCHEDULED_POSTS : publishes
+
+    SCHEDULED_POSTS ||--o{ PUBLISHING_LOGS : generates
+
+    USERS ||--o{ CAMPAIGNS : creates
+
+    CAMPAIGNS ||--o{ CAMPAIGN_PLATFORMS : uses
+    SOCIAL_PLATFORMS ||--o{ CAMPAIGN_PLATFORMS : included_in
+
+    CAMPAIGNS ||--o{ CAMPAIGN_CONTENTS : contains
+    SCHEDULED_POSTS ||--o{ CAMPAIGN_CONTENTS : associated_with
+
+    CAMPAIGNS ||--o{ CAMPAIGN_PERFORMANCE : tracks
+    SOCIAL_PLATFORMS ||--o{ CAMPAIGN_PERFORMANCE : measured_on
+
+    CAMPAIGNS ||--o{ AUDIENCE_GROWTH : tracks
+    SOCIAL_PLATFORMS ||--o{ AUDIENCE_GROWTH : measured_on
+```
+
+---
+
+# Milestone 4 Database Optimization Relationship View
+
+```text
+                         USERS
+                           |
+                           v
+                       CAMPAIGNS
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+CAMPAIGN_PLATFORMS  CAMPAIGN_CONTENTS  CAMPAIGN_PERFORMANCE
+                                             |
+                                             v
+                                      SOCIAL_PLATFORMS
+
+                           |
+                           v
+                    AUDIENCE_GROWTH
+                           |
+                           v
+                  SOCIAL_PLATFORMS
+```
+
+Performance indexes:
+
+```text
+campaigns
+    |
+    +-- ix_campaigns_user_status_created
+        (user_id, status, created_at)
+
+campaign_contents
+    |
+    +-- ix_campaign_contents_campaign_id
+        (campaign_id)
+
+campaign_performance
+    |
+    +-- ix_campaign_performance_campaign_platform_date
+        (campaign_id, platform_id, recorded_at)
+
+audience_growth
+    |
+    +-- ix_audience_growth_campaign_platform_date
+        (campaign_id, platform_id, recorded_at)
+```
+
+---
+
 # Sample Milestone 3 Data
 
 ## Sample Campaign
@@ -719,8 +1373,75 @@ Followers: 12500
 
 ---
 
+# Milestone 4 Database Status
+
+Completed:
+
+- Milestone 4 database optimization implemented
+- Campaign listing query optimized
+- Campaign content lookup query optimized
+- Campaign performance query optimized
+- Audience growth query optimized
+- Composite index created for campaign listing
+- Index created for campaign content lookup
+- Composite index created for campaign performance lookup
+- Composite index created for audience growth lookup
+- Alembic migration created
+- Alembic migration applied successfully
+- Migration chain verified
+- Current migration verified as `fb1dae61a8e9`
+- PostgreSQL indexes verified
+- Campaign queries tested using `EXPLAIN ANALYZE`
+- Campaign performance query tested using `EXPLAIN ANALYZE`
+- Audience growth query tested using `EXPLAIN ANALYZE`
+- Updated ER diagram documented
+- Database optimization flow documented
+- Milestone 4 database changes committed
+- Milestone 4 changes pushed to GitHub
+- Git working tree clean
+
+---
+
+# Milestone 4 Git Status
+
+Milestone 4 changes were committed using:
+
+```text
+git commit -m "feat: complete milestone 4 database optimization"
+```
+
+Commit:
+
+```text
+a4e9868
+```
+
+The changes were pushed using:
+
+```text
+git push origin Milestone-4
+```
+
+Successful push:
+
+```text
+c6204a4..a4e9868  Milestone-4 -> Milestone-4
+```
+
+Final repository status:
+
+```text
+On branch Milestone-4
+Your branch is up to date with 'origin/Milestone-4'.
+
+nothing to commit, working tree clean
+```
+
+---
+
 # Complete SocialPilot Database Workflow
 
+```text
 User Registration
        |
        v
@@ -772,13 +1493,20 @@ Calculate ROI
 Campaign Analytics
        |
        v
+Database Query Optimization
+       |
+       v
+Indexed Campaign and Analytics Queries
+       |
+       v
 Campaign Reports and Comparison
+```
 
 ---
 
 # Security Notes
 
-- Never commit the real .env file.
+- Never commit the real `.env` file.
 - Environment variables should be used for database credentials.
 - Passwords must be stored as secure password hashes and not as plain text.
 - OAuth access tokens and refresh tokens are sensitive credentials and require secure handling.
@@ -789,7 +1517,7 @@ Campaign Reports and Comparison
 
 # Final Database Outcome
 
-The SocialPilot database supports the complete workflow from user and social account management to content scheduling, publishing, campaign management, and analytics.
+The SocialPilot database supports the complete workflow from user and social account management to content scheduling, publishing, campaign management, analytics, and database query optimization.
 
 The database supports:
 
@@ -810,5 +1538,27 @@ The database supports:
 - Campaign reporting and comparison
 - Flexible content metadata
 - Flexible media metadata
+- Campaign query optimization
+- Campaign content query optimization
+- Campaign performance query optimization
+- Audience growth query optimization
+- PostgreSQL indexing
+- Alembic database migrations
+- Query performance testing
 
-The database is ready to support the SocialPilot end-to-end social media management workflow from content scheduling and publishing to campaign management and analytics.
+The final Alembic revision is:
+
+```text
+fb1dae61a8e9 (head)
+```
+
+The Milestone 4 optimization indexes are:
+
+```text
+ix_campaigns_user_status_created
+ix_campaign_contents_campaign_id
+ix_campaign_performance_campaign_platform_date
+ix_audience_growth_campaign_platform_date
+```
+
+The database is ready to support the SocialPilot end-to-end social media management workflow from content scheduling and publishing to campaign management, analytics, and scalable database query performance.
