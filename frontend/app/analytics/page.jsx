@@ -8,6 +8,7 @@ import api from "../../lib/api";
 import DashboardShell from "../../components/DashboardShell";
 import BestTimeToPostHeatmap from "../../components/analytics/BestTimeToPostHeatmap";
 import AudienceDemographics from "../../components/analytics/AudienceDemographics";
+import CountUpNumber from "../../components/CountUpNumber";
 
 const ANALYTICS_TABS = [
   { id: "overview", label: "Executive Overview", icon: "📊" },
@@ -469,8 +470,11 @@ export default function AnalyticsDashboardPage() {
                 <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">
                   Total Impressions
                 </p>
-                <p className="text-2xl font-extrabold text-foreground mt-0.5">
-                  {overview?.total_impressions ? overview.total_impressions.toLocaleString("en-US") : "4,290,450"}
+                <p className="text-2xl font-extrabold text-foreground mt-0.5 font-mono">
+                  <CountUpNumber
+                    value={overview?.total_impressions || 4290450}
+                    duration={900}
+                  />
                 </p>
                 <span className="inline-block mt-1 text-[11px] font-bold text-emerald-500">
                   ↑ +22.4% vs last period
@@ -486,8 +490,11 @@ export default function AnalyticsDashboardPage() {
                 <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">
                   Estimated Total Reach
                 </p>
-                <p className="text-2xl font-extrabold text-blue-500 mt-0.5">
-                  {overview?.total_reach ? overview.total_reach.toLocaleString("en-US") : "1,842,900"}
+                <p className="text-2xl font-extrabold text-blue-500 mt-0.5 font-mono">
+                  <CountUpNumber
+                    value={overview?.total_reach || 1842900}
+                    duration={900}
+                  />
                 </p>
                 <span className="inline-block mt-1 text-[11px] font-bold text-blue-500">
                   ↑ +14.2% audience reach
@@ -503,8 +510,13 @@ export default function AnalyticsDashboardPage() {
                 <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">
                   Average Engagement Rate
                 </p>
-                <p className="text-2xl font-extrabold text-emerald-500 mt-0.5">
-                  {overview?.average_engagement_rate ? `${overview.average_engagement_rate}%` : "5.84%"}
+                <p className="text-2xl font-extrabold text-emerald-500 mt-0.5 font-mono">
+                  <CountUpNumber
+                    value={overview?.average_engagement_rate || 5.84}
+                    suffix="%"
+                    decimals={2}
+                    duration={900}
+                  />
                 </p>
                 <span className="inline-block mt-1 text-[11px] font-bold text-emerald-500">
                   ↑ +1.2% industry benchmark
@@ -520,8 +532,11 @@ export default function AnalyticsDashboardPage() {
                 <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">
                   Total Link Clicks
                 </p>
-                <p className="text-2xl font-extrabold text-purple-500 mt-0.5">
-                  {overview?.total_clicks ? overview.total_clicks.toLocaleString("en-US") : "142,600"}
+                <p className="text-2xl font-extrabold text-purple-500 mt-0.5 font-mono">
+                  <CountUpNumber
+                    value={overview?.total_clicks || 142600}
+                    duration={900}
+                  />
                 </p>
                 <span className="inline-block mt-1 text-[11px] font-bold text-purple-500">
                   ↑ +18.9% outbound traffic

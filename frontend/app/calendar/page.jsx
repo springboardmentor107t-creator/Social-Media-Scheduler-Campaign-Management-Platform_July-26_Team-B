@@ -59,7 +59,8 @@ export default function CalendarPage() {
   const [draggedPost, setDraggedPost] = useState(null);
   const [dragOverDateKey, setDragOverDateKey] = useState(null);
 
-  // Quick Reschedule Modal State
+  // Quick Reschedule & Inspect Flyout States
+  const [inspectedPost, setInspectedPost] = useState(null);
   const [rescheduleModalPost, setRescheduleModalPost] = useState(null);
   const [editDate, setEditDate] = useState("");
   const [editTime, setEditTime] = useState("09:00");
@@ -495,6 +496,7 @@ export default function CalendarPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedDay(cell.date);
+                              setInspectedPost(post);
                             }}
                             className={`px-2 py-1 rounded-lg text-[10px] font-semibold truncate border cursor-grab active:cursor-grabbing transition-transform hover:scale-[1.02] flex items-center gap-1.5 shadow-sm ${
                               meta.border
@@ -671,7 +673,8 @@ export default function CalendarPage() {
                         key={post.id}
                         draggable="true"
                         onDragStart={(e) => handleDragStart(e, post)}
-                        className="p-2.5 rounded-xl bg-foreground/[0.03] border border-surface-border hover:border-brand-500/40 transition-all cursor-grab text-xs space-y-1.5 shadow-sm"
+                        onClick={() => setInspectedPost(post)}
+                        className="p-2.5 rounded-xl bg-foreground/[0.03] border border-surface-border hover:border-brand-500/40 transition-all cursor-pointer text-xs space-y-1.5 shadow-sm hover:scale-[1.01]"
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-mono text-xxs text-foreground-muted">
@@ -834,6 +837,142 @@ export default function CalendarPage() {
                 className="px-5 py-2 rounded-xl bg-gradient-brand text-white font-bold text-xs"
               >
                 {actionLoading ? "Saving..." : "Confirm Reschedule"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* POST QUICK-INSPECT FLYOUT DRAWER */}
+      {inspectedPost && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200">
+          <div
+            className="fixed inset-0"
+            onClick={() => setInspectedPost(null)}
+          />
+          <div className="relative w-full max-w-md h-full bg-surface border-l border-surface-border shadow-2xl p-6 flex flex-col z-10 animate-in slide-in-from-right duration-300 overflow-y-auto">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-surface-border">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-sm">
+                  🗓️
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">
+                    Post Quick-Inspect #{inspectedPost.id}
+                  </h3>
+                  <p className="text-xxs text-foreground-muted font-mono">
+                    Status: {inspectedPost.status?.toUpperCase() || "SCHEDULED"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setInspectedPost(null)}
+                className="w-8 h-8 rounded-xl hover:bg-surface-raised flex items-center justify-center text-foreground-muted hover:text-foreground text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Target Networks */}
+            <div className="py-4 border-b border-surface-border/60">
+              <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted mb-2">
+                Target Networks
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(Array.isArray(inspectedPost.platforms)
+                  ? inspectedPost.platforms
+                  : [inspectedPost.platform || "twitter"]
+                ).map((plat) => {
+                  const meta = PLATFORM_META[plat] || PLATFORM_META.twitter;
+                  return (
+                    <span
+                      key={plat}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface-raised border border-surface-border text-xs font-bold text-foreground shadow-2xs"
+                    >
+                      <span>{meta.icon}</span>
+                      <span>{meta.label}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Post Caption Body */}
+            <div className="py-4 border-b border-surface-border/60 flex-1">
+              <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted mb-2">
+                Post Content
+              </p>
+              <div className="p-4 rounded-2xl bg-surface-raised/50 border border-surface-border text-xs text-foreground leading-relaxed whitespace-pre-wrap font-sans">
+                {inspectedPost.content || "(No caption text provided)"}
+              </div>
+
+              {/* Scheduled Timing details */}
+              <div className="mt-4 p-3.5 rounded-2xl bg-brand-500/[0.04] border border-brand-500/20 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-foreground-muted">Scheduled Slot:</span>
+                  <span className="font-mono font-bold text-brand-600 dark:text-brand-400">
+                    {inspectedPost.scheduled_at
+                      ? new Date(inspectedPost.scheduled_at).toLocaleString()
+                      : "Pending Time"}
+                  </span>
+                </div>
+                {inspectedPost.campaign_id && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground-muted">Linked Campaign:</span>
+                    <span className="font-semibold text-foreground">
+                      Campaign #{inspectedPost.campaign_id}
+                    </span>
+                  </div>
+                )}
+                {inspectedPost.is_recurring && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground-muted">Recurrence:</span>
+                    <span className="px-2 py-0.5 rounded-full text-xxs font-bold bg-purple-500/10 text-purple-600">
+                      ↻ {inspectedPost.recurrence_pattern || "Recurring"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="pt-4 border-t border-surface-border space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setRescheduleModalPost(inspectedPost);
+                    setEditDate(
+                      inspectedPost.scheduled_at
+                        ? inspectedPost.scheduled_at.split("T")[0]
+                        : toDateKey(new Date())
+                    );
+                    setInspectedPost(null);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-surface-raised border border-surface-border text-xs font-bold text-foreground hover:bg-surface-raised/80 transition-all text-center flex items-center justify-center gap-1.5"
+                >
+                  <span>🕒</span>
+                  <span>Reschedule</span>
+                </button>
+                <button
+                  onClick={() => {
+                    router.push(`/posts/create?edit=${inspectedPost.id}`);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 transition-all text-center flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <span>✏️</span>
+                  <span>Edit in Studio</span>
+                </button>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  handleDeletePost(inspectedPost.id, e);
+                  setInspectedPost(null);
+                }}
+                className="w-full py-2 rounded-xl text-rose-500 hover:bg-rose-500/10 text-xs font-bold transition-all text-center"
+              >
+                Delete from Calendar
               </button>
             </div>
           </div>

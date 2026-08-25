@@ -7,6 +7,8 @@ import { isLoggedIn } from "../../lib/auth";
 import api from "../../lib/api";
 import DashboardShell from "../../components/DashboardShell";
 import ExecutiveReportPreview from "../../components/reports/ExecutiveReportPreview";
+import ExportProgressModal from "../../components/reports/ExportProgressModal";
+import CountUpNumber from "../../components/CountUpNumber";
 
 export default function ReportsPage() {
   const router = useRouter();
@@ -74,27 +76,17 @@ export default function ReportsPage() {
     setTimeout(() => setToastMessage(""), 4000);
   }
 
+  const [exportModalFormat, setExportModalFormat] = useState(null);
+
   // -------------------------------------------------------------
   // MULTI-FORMAT EXPORT TRIGGER
   // -------------------------------------------------------------
-  async function triggerExport(format) {
-    if (exporting) return;
-    setError("");
-    setExporting(true);
+  function triggerExport(format) {
+    setExportModalFormat(format);
+  }
 
-    const steps = [
-      "Connecting to Analytics Engine...",
-      "Querying verified social metrics...",
-      "Rendering data models & tables...",
-      `Assembling ${format.toUpperCase()} export package...`,
-      "Finalizing document download...",
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-      setExportStep(steps[i]);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    }
-
+  async function executeRealExport(format) {
+    setExportModalFormat(null);
     try {
       if (format === "pdf") {
         // Trigger browser's high-definition vector print dialog
@@ -159,9 +151,6 @@ export default function ReportsPage() {
       }
     } catch (err) {
       showToast("⚠️ Failed to generate export. Please try again.");
-    } finally {
-      setExporting(false);
-      setExportStep("");
     }
   }
 
@@ -536,6 +525,14 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
+
+      {/* LIVE EXPORT PROGRESS MODAL */}
+      <ExportProgressModal
+        isOpen={Boolean(exportModalFormat)}
+        format={exportModalFormat || "csv"}
+        onComplete={() => executeRealExport(exportModalFormat)}
+        onCancel={() => setExportModalFormat(null)}
+      />
     </DashboardShell>
   );
 }

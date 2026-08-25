@@ -205,7 +205,11 @@ function CreatePostContent() {
     setMode("schedule");
   }
 
-  // Simulated AI Tone Optimizer
+  function insertEmoji(emoji) {
+    setContent((prev) => (prev ? `${prev} ${emoji}` : emoji));
+  }
+
+  // Simulated Streaming AI Tone Optimizer with Typewriter effect
   async function handleAiTone(tone) {
     if (!content.trim()) {
       setError("Please write some initial draft text first to optimize with AI.");
@@ -213,24 +217,32 @@ function CreatePostContent() {
     }
     setAiLoading(true);
     setError("");
-    setAiFeedback(`Applying ${tone} tone tuning...`);
+    setAiFeedback(`✨ AI synthesizing ${tone} copy variations...`);
 
-    setTimeout(() => {
-      let enhanced = content;
-      if (tone === "professional") {
-        enhanced = `Executive Summary: ${content.trim()}\n\nKey Strategic Takeaway: Aligning cross-functional initiatives for measurable business outcomes.`;
-      } else if (tone === "engaging") {
-        enhanced = `🚀 Big news! ${content.trim()}\n\n👇 What are your thoughts on this? Drop a comment below!`;
-      } else if (tone === "punchy") {
-        enhanced = `⚡ Hook: ${content.trim()}\n\n• Point 1: Maximum impact\n• Point 2: Rapid execution\n• Point 3: Scale faster`;
-      } else if (tone === "promotional") {
-        enhanced = `${content.trim()}\n\n🔥 Limited time access — explore today via the link in our bio!`;
+    let targetText = content.trim();
+    if (tone === "professional") {
+      targetText = `Executive Brief: ${content.trim()}\n\nKey Strategic Driver: Aligning cross-functional marketing initiatives for measurable, high-velocity ROI.`;
+    } else if (tone === "engaging") {
+      targetText = `🚀 Big announcement! ${content.trim()}\n\n👇 What are your thoughts on this strategy? Drop a comment below!`;
+    } else if (tone === "punchy") {
+      targetText = `⚡ Action Hook: ${content.trim()}\n\n• Impact 1: Maximum audience reach\n• Impact 2: Rapid execution cycle\n• Impact 3: Scale 3x faster`;
+    } else if (tone === "promotional") {
+      targetText = `🔥 Limited Spotlight: ${content.trim()}\n\n👉 Discover the full breakdown via the link in bio today!`;
+    }
+
+    setContent("");
+    let currentIdx = 0;
+    const interval = setInterval(() => {
+      currentIdx += 4;
+      setContent(targetText.slice(0, currentIdx));
+      if (currentIdx >= targetText.length) {
+        clearInterval(interval);
+        setContent(targetText);
+        setAiLoading(false);
+        setAiFeedback(`✓ Text refined to ${tone} style!`);
+        setTimeout(() => setAiFeedback(""), 3500);
       }
-      setContent(enhanced);
-      setAiLoading(false);
-      setAiFeedback(`✨ AI adjusted text to ${tone} style!`);
-      setTimeout(() => setAiFeedback(""), 3500);
-    }, 600);
+    }, 15);
   }
 
   async function handleSubmit(e) {
@@ -390,30 +402,57 @@ function CreatePostContent() {
               <label className="text-xs font-bold uppercase tracking-wider text-foreground-muted">
                 2. Post Caption & Copy
               </label>
-              {/* Character Limit Ring */}
-              <div className="flex items-center gap-2">
+              {/* Circular Radial Character Limit Meter */}
+              <div className="flex items-center gap-3">
                 <span
                   className={`text-xs font-mono font-bold ${
-                    currentChars > activeLimit ? "text-rose-500" : "text-foreground-muted"
+                    currentChars > activeLimit
+                      ? "text-rose-500"
+                      : currentChars > activeLimit * 0.85
+                      ? "text-amber-500"
+                      : "text-foreground-muted"
                   }`}
                 >
                   {currentChars} / {activeLimit}
                 </span>
-                <div className="w-12 h-2 rounded-full bg-foreground/[0.08] overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 ${
-                      charPercent > 90 ? "bg-rose-500" : "bg-brand-500"
-                    }`}
-                    style={{ width: `${charPercent}%` }}
-                  />
+
+                {/* SVG Ring */}
+                <div className="relative w-7 h-7 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-surface-border"
+                      strokeWidth="3.5"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className={`transition-all duration-300 ${
+                        charPercent > 100
+                          ? "text-rose-500"
+                          : charPercent > 85
+                          ? "text-amber-500"
+                          : "text-brand-500"
+                      }`}
+                      strokeDasharray={`${Math.min(100, charPercent)}, 100`}
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <span className="absolute text-[8px] font-mono font-bold text-foreground-muted">
+                    {Math.max(0, activeLimit - currentChars)}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* AI Assistant Quick Bar */}
-            <div className="p-3 rounded-2xl bg-foreground/[0.02] border border-surface-border space-y-2">
+            <div className="p-3.5 rounded-2xl bg-surface-raised/50 border border-surface-border space-y-2.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold flex items-center gap-1.5 text-brand-500">
+                <span className="font-bold flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
                   <span>✨</span> AI Tone Assistant:
                 </span>
                 {aiFeedback && (
@@ -422,14 +461,14 @@ function CreatePostContent() {
                   </span>
                 )}
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {Object.keys(AI_TONE_TEMPLATES).map((tone) => (
                   <button
                     key={tone}
                     type="button"
                     disabled={aiLoading}
                     onClick={() => handleAiTone(tone)}
-                    className="px-3 py-1 rounded-xl text-xs font-semibold bg-surface border border-surface-border hover:border-brand-500 hover:text-brand-500 transition-all capitalize"
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface border border-surface-border hover:border-brand-500 hover:text-brand-500 transition-all capitalize shadow-2xs hover:scale-105 active:scale-95"
                   >
                     {tone}
                   </button>
@@ -442,10 +481,30 @@ function CreatePostContent() {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="What would you like to publish? Write a compelling hook or story..."
+                placeholder="What would you like to publish? Write a compelling hook, story, or value proposition..."
                 rows={6}
-                className="w-full p-4 rounded-2xl bg-surface border border-surface-border text-foreground placeholder:text-foreground-muted/60 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-y transition-all"
+                className="w-full p-4 rounded-2xl bg-surface border border-surface-border text-foreground placeholder:text-foreground-muted/60 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-y transition-all shadow-inner"
               />
+            </div>
+
+            {/* Quick Emoji Bar & Hashtag Chips */}
+            <div className="flex items-center justify-between gap-2 pt-1 border-t border-surface-border/60">
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 text-sm">
+                {["🚀", "✨", "🔥", "💡", "📊", "👇", "🎯", "⚡", "🤝", "🎉"].map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => insertEmoji(emoji)}
+                    className="w-7 h-7 rounded-lg hover:bg-surface-raised hover:scale-110 active:scale-95 transition-all flex items-center justify-center"
+                    title={`Insert ${emoji}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xxs font-mono text-foreground-subtle hidden sm:inline">
+                Click emoji to insert
+              </span>
             </div>
 
             {/* Suggested Hashtags */}

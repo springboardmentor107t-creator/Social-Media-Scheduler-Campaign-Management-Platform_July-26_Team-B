@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import CommandPalette from "../components/CommandPalette";
+import PersonaSwitcher from "../components/PersonaSwitcher";
+import KeyboardShortcutsModal from "../components/KeyboardShortcutsModal";
 import { ToastProvider } from "../components/Toast";
 
 const geistSans = Geist({
@@ -35,6 +37,8 @@ export default function RootLayout({ children }) {
 
           <Navbar />
           <CommandPalette />
+          <PersonaSwitcher />
+          <KeyboardShortcutsModal />
           <main className="flex-1 flex flex-col w-full h-full relative z-0">
             {children}
           </main>

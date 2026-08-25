@@ -32,6 +32,8 @@ const DEMO_NOTIFICATIONS = [
   },
 ];
 
+import NotificationCenter from "./NotificationCenter";
+
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -142,104 +144,7 @@ export default function Navbar() {
           {checked && user && (
             <>
               {/* Notifications Center */}
-              <div className="relative">
-                <button
-                  onClick={() => {
-                    setNotificationsOpen((prev) => !prev);
-                    setMenuOpen(false);
-                  }}
-                  type="button"
-                  className="w-9 h-9 rounded-xl border border-surface-border flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/[0.04] transition-all relative cursor-pointer"
-                  title="Notifications"
-                >
-                  <svg
-                    className="w-4.5 h-4.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-                    />
-                  </svg>
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-500 animate-ping" />
-                  )}
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-500" />
-                  )}
-                </button>
-
-                {/* Notifications Dropdown */}
-                {notificationsOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-[90]"
-                      onClick={() => setNotificationsOpen(false)}
-                    />
-                    <div className="absolute right-0 mt-2 w-80 sm:w-96 dropdown-surface rounded-3xl p-4 z-[100] shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                      <div className="flex items-center justify-between pb-3 border-b border-surface-border">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-sm text-foreground">
-                            Notifications
-                          </h3>
-                          {unreadCount > 0 && (
-                            <span className="px-2 py-0.5 rounded-full text-xxs font-bold bg-brand-500/10 text-brand-600">
-                              {unreadCount} new
-                            </span>
-                          )}
-                        </div>
-                        {unreadCount > 0 && (
-                          <button
-                            onClick={markAllRead}
-                            className="text-xxs font-bold text-brand-600 hover:underline cursor-pointer"
-                          >
-                            Mark all read
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="divide-y divide-surface-border max-h-72 overflow-y-auto my-1">
-                        {notifications.map((n) => (
-                          <div
-                            key={n.id}
-                            className={`p-3 rounded-2xl transition-colors ${
-                              n.unread
-                                ? "bg-brand-500/[0.04]"
-                                : "hover:bg-foreground/[0.02]"
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="text-xs font-bold text-foreground">
-                                {n.title}
-                              </p>
-                              <span className="text-[10px] font-mono text-foreground-subtle whitespace-nowrap">
-                                {n.time}
-                              </span>
-                            </div>
-                            <p className="text-xxs text-foreground-muted mt-1 leading-snug">
-                              {n.desc}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="pt-2 border-t border-surface-border text-center">
-                        <Link
-                          href="/dashboard"
-                          onClick={() => setNotificationsOpen(false)}
-                          className="text-xxs font-bold text-brand-600 hover:underline"
-                        >
-                          View System Activity &rarr;
-                        </Link>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+              <NotificationCenter />
 
               {/* User Account Dropdown */}
               <div className="relative">
