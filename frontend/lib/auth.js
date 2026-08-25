@@ -1,7 +1,9 @@
 import api from "./api";
 
 export function setToken(token) {
-  localStorage.setItem("token", token);
+  if (typeof window !== "undefined") {
+    localStorage.setItem("token", token);
+  }
 }
 
 export function getToken() {
@@ -10,7 +12,31 @@ export function getToken() {
 }
 
 export function clearToken() {
-  localStorage.removeItem("token");
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+  }
+}
+
+export function setUser(user) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+}
+
+export function getUser() {
+  if (typeof window === "undefined") return null;
+  const user = localStorage.getItem("user");
+  try {
+    return user ? JSON.parse(user) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function clearUser() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("user");
+  }
 }
 
 export function isLoggedIn() {
@@ -36,12 +62,16 @@ export async function login(email, password) {
   const token = response.data.access_token || response.data.token;
   if (token) {
     setToken(token);
+    if (response.data.user) {
+      setUser(response.data.user);
+    }
   }
   return response.data;
 }
 
 export function logout() {
   clearToken();
+  clearUser();
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }

@@ -65,20 +65,20 @@ export default function BillingPage() {
  }, []);
 
  async function checkAccess() {
- try {
- const response = await api.get("/api/v1/auth/me");
- const me = response.data;
- setCurrentUser(me);
+    try {
+      const response = await api.get("/api/v1/auth/me");
+      const me = response.data;
+      setCurrentUser(me);
 
- if (me.role !== "business" && me.role !== "admin") {
- router.push("/profile");
- return;
- }
- setCheckingAccess(false);
- } catch (err) {
- router.push("/login");
- }
- }
+      if (me.role !== "business") {
+        router.push("/dashboard");
+        return;
+      }
+      setCheckingAccess(false);
+    } catch (err) {
+      router.push("/login");
+    }
+  }
 
  if (checkingAccess) {
  return (

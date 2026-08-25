@@ -325,7 +325,7 @@ export default function CampaignDetailPage() {
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-t border-divider ">
  <div>
  <p className="text-xs font-bold uppercase tracking-wider text-foreground-muted mb-1">Budget Allocation</p>
- <p className="text-xl font-bold text-foreground ">${campaign.budget?.toLocaleString() || "0"}</p>
+ <p className="text-xl font-bold text-foreground ">${campaign.budget?.toLocaleString("en-US") || "0"}</p>
  </div>
  <div>
  <p className="text-xs font-bold uppercase tracking-wider text-foreground-muted mb-1">Target Audience</p>
@@ -337,7 +337,7 @@ export default function CampaignDetailPage() {
  </div>
  <div>
  <p className="text-xs font-bold uppercase tracking-wider text-foreground-muted mb-1">Date Created</p>
- <p className="text-sm font-semibold text-foreground ">{new Date(campaign.created_at).toLocaleDateString()}</p>
+ <p className="text-sm font-semibold text-foreground ">{new Date(campaign.created_at).toLocaleDateString("en-US")}</p>
  </div>
  </div>
  </div>
@@ -347,27 +347,27 @@ export default function CampaignDetailPage() {
  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
  <div className="glass-panel p-4 rounded-2xl text-center">
  <span className="text-lg">👁️</span>
- <p className="text-lg font-bold text-foreground mt-1">{totalImpressions.toLocaleString()}</p>
+ <p className="text-lg font-bold text-foreground mt-1">{totalImpressions.toLocaleString("en-US")}</p>
  <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">Impressions</p>
  </div>
  <div className="glass-panel p-4 rounded-2xl text-center">
  <span className="text-lg">👥</span>
- <p className="text-lg font-bold text-foreground mt-1">{totalReach.toLocaleString()}</p>
+ <p className="text-lg font-bold text-foreground mt-1">{totalReach.toLocaleString("en-US")}</p>
  <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">Reach</p>
  </div>
  <div className="glass-panel p-4 rounded-2xl text-center">
  <span className="text-lg">❤️</span>
- <p className="text-lg font-bold text-foreground mt-1">{totalLikes.toLocaleString()}</p>
+ <p className="text-lg font-bold text-foreground mt-1">{totalLikes.toLocaleString("en-US")}</p>
  <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">Likes</p>
  </div>
  <div className="glass-panel p-4 rounded-2xl text-center">
  <span className="text-lg">💬</span>
- <p className="text-lg font-bold text-foreground mt-1">{totalComments.toLocaleString()}</p>
+ <p className="text-lg font-bold text-foreground mt-1">{totalComments.toLocaleString("en-US")}</p>
  <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">Comments</p>
  </div>
  <div className="glass-panel p-4 rounded-2xl text-center col-span-2 lg:col-span-1">
  <span className="text-lg">🖱️</span>
- <p className="text-lg font-bold text-foreground mt-1">{totalClicks.toLocaleString()}</p>
+ <p className="text-lg font-bold text-foreground mt-1">{totalClicks.toLocaleString("en-US")}</p>
  <p className="text-xxs font-bold uppercase tracking-wider text-foreground-muted">Clicks</p>
  </div>
  </div>
