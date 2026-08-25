@@ -50,7 +50,7 @@ export default function DashboardPage() {
           getDrafts().catch(() => []),
           getQueue("scheduled").catch(() => []),
           getQueue("published").catch(() => []),
-          api.get("/api/v1/social-accounts/").catch(() => ({ data: [] })),
+          api.get("/api/v1/social-accounts").catch(() => ({ data: [] })),
         ]);
       setDrafts(draftsData || []);
       setScheduled(scheduledData || []);

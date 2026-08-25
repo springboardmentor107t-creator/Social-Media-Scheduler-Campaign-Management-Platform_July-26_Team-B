@@ -132,8 +132,8 @@ function CreatePostContent() {
     setLoadingAccounts(true);
     try {
       const [accRes, campRes] = await Promise.allSettled([
-        api.get("/api/v1/social-accounts/"),
-        api.get("/api/v1/campaigns/"),
+        api.get("/api/v1/social-accounts"),
+        api.get("/api/v1/campaigns"),
       ]);
 
       if (accRes.status === "fulfilled") {

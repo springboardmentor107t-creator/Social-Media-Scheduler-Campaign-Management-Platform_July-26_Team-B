@@ -76,7 +76,7 @@ export default function SocialAccountsPage() {
     setLoading(true);
     setError("");
     try {
-      const response = await api.get("/api/v1/social-accounts/");
+      const response = await api.get("/api/v1/social-accounts");
       setAccounts(response.data || []);
     } catch (err) {
       setError(

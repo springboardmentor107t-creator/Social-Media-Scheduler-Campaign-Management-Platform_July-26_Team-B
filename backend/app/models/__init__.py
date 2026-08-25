@@ -7,6 +7,7 @@ from app.models.campaign import Campaign, CampaignStatus
 from app.models.campaign_content import CampaignContent
 from app.models.analytics import AnalyticsRecord
 from app.models.audience import AudienceSegment
+from app.models.social_account import SocialAccount
 
 __all__ = [
     "Base",
@@ -22,5 +23,6 @@ __all__ = [
     "CampaignStatus",
     "CampaignContent",
     "AnalyticsRecord",
-    "AudienceSegment"
+    "AudienceSegment",
+    "SocialAccount"
 ]

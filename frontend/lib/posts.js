@@ -5,23 +5,39 @@ import api from "./api";
 // Swap only the paths/field names below once backend confirms exact spec.
 
 export async function createPost(data) {
+  const isRecurring = Boolean(data.recurrence && data.recurrence.frequency);
+  const recurrencePattern = isRecurring ? data.recurrence.frequency.toLowerCase() : null;
+  const recurrenceEndDate = isRecurring ? data.recurrence.end_date : null;
+
   const response = await api.post("/api/v1/posts", {
     content: data.content,
-    platforms: data.platforms,        // array of connected account IDs
-    status: data.status,              // "draft" | "scheduled" | "published"
-    scheduled_at: data.scheduledAt || null,
-    recurrence: data.recurrence || null,   // { frequency, end_date } or null
+    media_urls: data.media_urls || [],
+    platforms: data.platforms || [],
+    status: data.status || "draft",
+    scheduled_at: data.scheduledAt || data.scheduled_at || null,
+    campaign_id: data.campaign_id || null,
+    is_recurring: isRecurring,
+    recurrence_pattern: recurrencePattern,
+    recurrence_end_date: recurrenceEndDate,
   });
   return response.data;
 }
 
 export async function updatePost(id, data) {
+  const isRecurring = Boolean(data.recurrence && data.recurrence.frequency);
+  const recurrencePattern = isRecurring ? data.recurrence.frequency.toLowerCase() : null;
+  const recurrenceEndDate = isRecurring ? data.recurrence.end_date : null;
+
   const response = await api.put(`/api/v1/posts/${id}`, {
     content: data.content,
-    platforms: data.platforms,
-    status: data.status,
-    scheduled_at: data.scheduledAt || null,
-    recurrence: data.recurrence || null,
+    media_urls: data.media_urls || undefined,
+    platforms: data.platforms || undefined,
+    status: data.status || undefined,
+    scheduled_at: data.scheduledAt || data.scheduled_at || undefined,
+    campaign_id: data.campaign_id || undefined,
+    is_recurring: isRecurring,
+    recurrence_pattern: recurrencePattern,
+    recurrence_end_date: recurrenceEndDate,
   });
   return response.data;
 }

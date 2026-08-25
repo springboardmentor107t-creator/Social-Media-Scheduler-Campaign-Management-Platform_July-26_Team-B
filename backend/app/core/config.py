@@ -11,17 +11,15 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
 
-    # PostgreSQL
-    # The actual production/local database URL should come from .env.
-    DATABASE_URL: str = "postgresql+psycopg2://postgres:YOUR_PASSWORD@localhost:5432/socialpilot_db"
+    # Database Configuration (Defaults to local SQLite if PostgreSQL is not specified in .env)
+    DATABASE_URL: str = "sqlite:///./socialpilot.db"
 
     # MongoDB
-    # The actual production/local MongoDB URL should come from .env.
     MONGODB_URL: str = "mongodb://localhost:27017/"
     MONGODB_DB_NAME: str = "socialpilot_db"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=[".env", "backend/.env"],
         env_file_encoding="utf-8",
         extra="ignore",
     )

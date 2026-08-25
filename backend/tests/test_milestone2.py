@@ -5,9 +5,15 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database import Base, engine, SessionLocal
 from app.models.user import User
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, get_current_user
 
 client = TestClient(app)
+
+def override_get_current_user():
+    db = SessionLocal()
+    user = db.query(User).filter(User.username == "testuser").first()
+    db.close()
+    return user
 
 @pytest.fixture(autouse=True)
 def setup_db():
@@ -24,6 +30,10 @@ def setup_db():
     db.add(test_user)
     db.commit()
     db.close()
+
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    yield
+    app.dependency_overrides.clear()
 
 def test_post_management_crud():
     # Create Draft

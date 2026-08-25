@@ -11,6 +11,8 @@ class PostBase(BaseModel):
     is_recurring: Optional[bool] = False
     recurrence_pattern: Optional[RecurrencePattern] = None
     recurrence_end_date: Optional[datetime] = None
+    scheduled_at: Optional[datetime] = None
+    campaign_id: Optional[int] = None
 
 class PostCreate(PostBase):
     status: Optional[PostStatus] = PostStatus.DRAFT
@@ -23,6 +25,8 @@ class PostUpdate(BaseModel):
     is_recurring: Optional[bool] = None
     recurrence_pattern: Optional[RecurrencePattern] = None
     recurrence_end_date: Optional[datetime] = None
+    scheduled_at: Optional[datetime] = None
+    campaign_id: Optional[int] = None
 
 class PostResponse(PostBase):
     id: int
@@ -30,5 +34,6 @@ class PostResponse(PostBase):
     status: PostStatus
     created_at: datetime
     updated_at: datetime
+    scheduled_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
