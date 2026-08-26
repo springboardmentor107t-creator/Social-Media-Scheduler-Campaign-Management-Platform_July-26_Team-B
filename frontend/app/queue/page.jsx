@@ -9,6 +9,7 @@ import DashboardShell from "../../components/DashboardShell";
 import StatusBadge from "../../components/StatusBadge";
 import EmptyState from "../../components/EmptyState";
 import { SkeletonPost } from "../../components/skeletons";
+import { PlatformBadgesGroup } from "../../components/PlatformBadge";
 
 const PLATFORM_META = {
   facebook: { label: "Facebook", color: "bg-blue-600" },
@@ -242,16 +243,8 @@ export default function QueuePage() {
                   </p>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-foreground-muted">
                     {post.platforms && post.platforms.length > 0 && (
-                      <div className="flex items-center gap-1.5 pr-2 border-r border-divider">
-                        {post.platforms.map((p) => (
-                          <span
-                            key={p}
-                            title={PLATFORM_META[p]?.label || p}
-                            className={`w-3.5 h-3.5 rounded-full ${
-                              PLATFORM_META[p]?.color || "bg-foreground/20"
-                            }`}
-                          />
-                        ))}
+                      <div className="pr-2 border-r border-divider">
+                        <PlatformBadgesGroup platforms={post.platforms} size="sm" mode="icon" />
                       </div>
                     )}
                     <span className="font-medium text-foreground-subtle">

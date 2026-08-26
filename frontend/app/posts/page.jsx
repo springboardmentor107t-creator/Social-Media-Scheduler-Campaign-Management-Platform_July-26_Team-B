@@ -9,6 +9,7 @@ import { getPosts, deletePost, retryPost, updatePost } from "../../lib/posts";
 import DashboardShell from "../../components/DashboardShell";
 import StatusBadge from "../../components/StatusBadge";
 import EmptyState from "../../components/EmptyState";
+import { PlatformBadgesGroup } from "../../components/PlatformBadge";
 
 const PLATFORMS = [
   { id: "all", label: "All Networks", icon: "🌐" },
@@ -28,6 +29,24 @@ const STATUS_TABS = [
   { id: "failed", label: "Needs Attention" },
   { id: "cancelled", label: "Cancelled" },
 ];
+
+function getMediaList(post) {
+  if (!post) return [];
+  let raw = post.media_urls || post.media_url || post.media || post.image_url || post.mediaFiles || [];
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) raw = parsed;
+      else raw = [raw];
+    } catch {
+      raw = raw.includes(",") ? raw.split(",").map((s) => s.trim()) : [raw];
+    }
+  }
+  if (!Array.isArray(raw)) raw = [raw];
+  return raw
+    .map((item) => (typeof item === "string" ? item : item?.url || item?.preview || item?.src || ""))
+    .filter((url) => typeof url === "string" && url.trim().length > 0 && !url.startsWith("[") && !url.endsWith("]"));
+}
 
 export default function PostsManagementPage() {
   const router = useRouter();
@@ -423,7 +442,8 @@ export default function PostsManagementPage() {
           {filteredPosts.map((post) => {
             const isSelected = selectedIds.includes(post.id);
             const platforms = Array.isArray(post.platforms) ? post.platforms : [post.platform || "twitter"];
-            const hasMedia = post.media_urls && post.media_urls.length > 0;
+            const mediaList = getMediaList(post);
+            const hasMedia = mediaList.length > 0;
 
             return (
               <div
@@ -433,26 +453,19 @@ export default function PostsManagementPage() {
                 }`}
               >
                 {/* Card Top: Checkbox, Status & Network Badges */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-start justify-between gap-2 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleSelectOne(post.id)}
-                      className="w-4 h-4 accent-brand-500 rounded cursor-pointer mt-0.5"
+                      className="w-4 h-4 accent-brand-500 rounded cursor-pointer mt-0.5 shrink-0"
                     />
                     <StatusBadge status={post.status} />
                   </div>
-                  {/* Platforms */}
-                  <div className="flex items-center gap-1">
-                    {platforms.map((p, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 rounded-md bg-foreground/[0.06] text-xxs font-bold text-foreground capitalize"
-                      >
-                        {p}
-                      </span>
-                    ))}
+                  {/* Connected Channels (Sleek Micro-Badges) */}
+                  <div className="shrink-0 max-w-[55%]">
+                    <PlatformBadgesGroup platforms={platforms} size="sm" mode="icon" />
                   </div>
                 </div>
 
@@ -464,15 +477,16 @@ export default function PostsManagementPage() {
 
                   {/* Media Thumbnail */}
                   {hasMedia && (
-                    <div className="h-32 rounded-2xl bg-foreground/[0.04] overflow-hidden border border-surface-border relative">
+                    <div className="h-36 rounded-2xl bg-foreground/[0.04] overflow-hidden border border-surface-border relative group/img">
                       <img
-                        src={post.media_urls[0]}
+                        src={mediaList[0]}
                         alt="Media attachment"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105"
+                        loading="lazy"
                       />
-                      {post.media_urls.length > 1 && (
-                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-bold">
-                          +{post.media_urls.length - 1} more
+                      {mediaList.length > 1 && (
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-[10px] font-bold backdrop-blur-sm shadow-md">
+                          +{mediaList.length - 1} more
                         </div>
                       )}
                     </div>
@@ -586,16 +600,7 @@ export default function PostsManagementPage() {
                         <p className="font-semibold text-foreground truncate">{post.content || "Empty draft"}</p>
                       </td>
                       <td className="p-4">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          {platforms.map((p, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-0.5 rounded-md bg-foreground/[0.06] text-xxs font-bold capitalize"
-                            >
-                              {p}
-                            </span>
-                          ))}
-                        </div>
+                        <PlatformBadgesGroup platforms={platforms} size="sm" mode="icon" className="justify-start" />
                       </td>
                       <td className="p-4">
                         <StatusBadge status={post.status} />

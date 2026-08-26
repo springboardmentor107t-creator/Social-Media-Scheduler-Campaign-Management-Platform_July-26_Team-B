@@ -20,7 +20,7 @@ def seed_data(db: Session):
     ]
     created_users = {}
     for u_data in seed_users_data:
-        existing = db.query(User).filter(User.username == u_data["username"]).first()
+        existing = db.query(User).filter((User.username == u_data["username"]) | (User.email == u_data["email"])).first()
         if not existing:
             u_obj = User(
                 username=u_data["username"],
@@ -33,6 +33,10 @@ def seed_data(db: Session):
             db.refresh(u_obj)
             created_users[u_data["username"]] = u_obj
         else:
+            existing.hashed_password = get_password_hash(u_data["password"])
+            existing.role = u_data["role"]
+            db.commit()
+            db.refresh(existing)
             created_users[u_data["username"]] = existing
             
     user = created_users.get("testuser") or created_users.get("alex_marketing")

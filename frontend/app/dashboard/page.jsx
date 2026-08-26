@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { isLoggedIn } from "../../lib/auth";
+import { isLoggedIn, getUser } from "../../lib/auth";
 import api from "../../lib/api";
 import { getDrafts, getQueue } from "../../lib/posts";
+import { roleConfig } from "../../lib/roleConfig";
 import DashboardShell from "../../components/DashboardShell";
 import StatusBadge from "../../components/StatusBadge";
 import EmptyState from "../../components/EmptyState";
@@ -74,7 +75,10 @@ export default function DashboardPage() {
     }
   }
 
-  const quickActions = [
+  const user = getUser();
+  const role = user?.role || "creator";
+  const currentConfig = roleConfig[role] || roleConfig.creator;
+  const quickActions = currentConfig.quickActions || [
     {
       label: "Create Post",
       href: "/posts/create",
@@ -82,7 +86,7 @@ export default function DashboardPage() {
       desc: "Draft or schedule new content",
     },
     {
-      label: "Content Queue",
+      label: "Publishing Queue",
       href: "/queue",
       icon: "📋",
       desc: "Manage publishing pipeline",
@@ -94,10 +98,10 @@ export default function DashboardPage() {
       desc: "Visual schedule planner",
     },
     {
-      label: "Campaign Hub",
-      href: "/campaigns",
-      icon: "🚀",
-      desc: "Organize marketing campaigns",
+      label: "Post Library",
+      href: "/posts",
+      icon: "📚",
+      desc: "Browse published and scheduled posts",
     },
   ];
 
@@ -108,10 +112,10 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-              Dashboard Overview
+              {currentConfig.landingTitle || "Dashboard Overview"}
             </h1>
             <p className="text-sm text-foreground-muted mt-1">
-              Monitor scheduled posts, campaign metrics, and publishing performance.
+              {currentConfig.landingDesc || "Monitor scheduled posts, campaign metrics, and publishing performance."}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -136,10 +140,10 @@ export default function DashboardPage() {
               </svg>
             </button>
             <Link
-              href="/posts/create"
+              href={currentConfig.primaryHref || "/posts/create"}
               className="px-4 py-2.5 rounded-xl bg-gradient-brand text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-1.5"
             >
-              <span>+</span> Create Post
+              <span>+</span> {currentConfig.primaryAction || "Create Post"}
             </Link>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { getDrafts, deletePost, updatePost } from "../../lib/posts";
 import DashboardShell from "../../components/DashboardShell";
 import EmptyState from "../../components/EmptyState";
 import { SkeletonCard } from "../../components/skeletons";
+import { PlatformBadgesGroup } from "../../components/PlatformBadge";
 
 const PLATFORM_META = {
   facebook: { label: "Facebook", color: "bg-blue-600" },
@@ -197,16 +198,8 @@ export default function DraftsPage() {
 
                   {/* Platforms */}
                   {draft.platforms && draft.platforms.length > 0 && (
-                    <div className="flex items-center gap-1.5 mb-4">
-                      {draft.platforms.map((p) => (
-                        <span
-                          key={p}
-                          title={PLATFORM_META[p]?.label || p}
-                          className={`w-3.5 h-3.5 rounded-full ${
-                            PLATFORM_META[p]?.color || "bg-foreground/20"
-                          }`}
-                        />
-                      ))}
+                    <div className="mb-4">
+                      <PlatformBadgesGroup platforms={draft.platforms} size="sm" mode="icon" className="justify-start" />
                     </div>
                   )}
                 </div>

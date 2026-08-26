@@ -233,6 +233,16 @@ export default function Navbar() {
                         >
                           <span>⚙️</span> System Settings
                         </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            window.dispatchEvent(new CustomEvent("open_persona_switcher"));
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-brand-600 dark:text-brand-400 hover:bg-brand-500/10 transition-colors text-left cursor-pointer"
+                        >
+                          <span>🎭</span> Switch Role / Persona
+                        </button>
                       </div>
 
                       <div className="h-px bg-divider my-2" />
