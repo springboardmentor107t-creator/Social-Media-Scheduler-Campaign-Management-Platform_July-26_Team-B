@@ -253,10 +253,10 @@ export default function AdminContentPage() {
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-foreground text-xs">
-                            {post.author_username || `User #${post.user_id}`}
+                            {post.owner_name || post.author_username || `User #${post.user_id}`}
                           </span>
-                          {post.author_role && (
-                            <RoleBadge role={post.author_role} />
+                          {(post.owner_role || post.author_role) && (
+                            <RoleBadge role={post.owner_role || post.author_role} />
                           )}
                         </div>
                       </td>
@@ -316,10 +316,10 @@ export default function AdminContentPage() {
                   <div className="flex items-center justify-between pt-2 text-xs border-t border-surface-border/50">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-foreground">
-                        {post.author_username || `User #${post.user_id}`}
+                        {post.owner_name || post.author_username || `User #${post.user_id}`}
                       </span>
-                      {post.author_role && (
-                        <RoleBadge role={post.author_role} />
+                      {(post.owner_role || post.author_role) && (
+                        <RoleBadge role={post.owner_role || post.author_role} />
                       )}
                     </div>
                     <div className="flex items-center gap-1">

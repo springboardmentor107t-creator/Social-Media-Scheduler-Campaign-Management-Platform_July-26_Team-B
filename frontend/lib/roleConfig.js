@@ -172,6 +172,7 @@ export const roleConfig = {
       { name: "Dashboard", href: "/dashboard" },
       { name: "All Users", href: "/admin/users" },
       { name: "Content Moderation", href: "/admin/content" },
+      { name: "System Health & Audit", href: "/admin/system-health" },
       { name: "Post Library", href: "/posts" },
       { name: "Create Post", href: "/posts/create" },
       { name: "Campaigns", href: "/campaigns" },
