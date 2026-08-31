@@ -173,6 +173,7 @@ export const roleConfig = {
       { name: "All Users", href: "/admin/users" },
       { name: "Content Moderation", href: "/admin/content" },
       { name: "System Health & Audit", href: "/admin/system-health" },
+      { name: "Realtime Integrations Hub", href: "/admin/integrations" },
       { name: "Post Library", href: "/posts" },
       { name: "Create Post", href: "/posts/create" },
       { name: "Campaigns", href: "/campaigns" },
@@ -187,6 +188,12 @@ export const roleConfig = {
       { name: "Profile", href: "/profile" },
     ],
     quickActions: [
+      {
+        label: "Realtime Integrations Hub",
+        href: "/admin/integrations",
+        icon: "⚡",
+        desc: "Live ticklist audit & WebSockets",
+      },
       {
         label: "User Management",
         href: "/admin/users",

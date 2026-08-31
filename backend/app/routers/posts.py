@@ -85,6 +85,28 @@ def retry_post_endpoint(
     post_in = PostUpdate(status=PostStatus.SCHEDULED)
     return service.update_post(post_id, current_user.id, post_in)
 
+@router.post("/{post_id}/publish-now")
+async def publish_now_endpoint(
+    post_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from app.services.social_publishers import SocialPublisherEngine
+    service = PostService(db)
+    post = service.get_post(post_id, current_user.id)
+    
+    dispatch_results = await SocialPublisherEngine.dispatch_post_to_channels(post, db)
+    
+    # Mark post as published
+    post_in = PostUpdate(status=PostStatus.PUBLISHED)
+    updated_post = service.update_post(post_id, current_user.id, post_in)
+    
+    return {
+        "status": "published",
+        "post_id": post_id,
+        "dispatch": dispatch_results
+    }
+
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(
     post_id: int,
@@ -94,4 +116,6 @@ def delete_post(
     service = PostService(db)
     service.delete_post(post_id, current_user.id)
     return None
+
+
 
