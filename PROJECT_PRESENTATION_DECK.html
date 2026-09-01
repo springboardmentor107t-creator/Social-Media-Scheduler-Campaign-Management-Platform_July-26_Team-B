@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SocialPilot - Master Project Presentation Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --accent: #8b5cf6;
+      --dark: #0f172a;
+      --dark-card: #1e293b;
+      --slate-border: #334155;
+      --text-muted: #94a3b8;
+      --bg: #0b0f19;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg); color: #f8fafc; line-height: 1.6; padding: 40px 20px; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px);
+      border: 1px solid var(--slate-border); border-radius: 20px; margin-bottom: 30px;
+    }
+    .badge {
+      display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-primary { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4); }
+    .badge-admin { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .badge-biz { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-mktg { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-creator { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+    .btn-print {
+      background: var(--primary); color: #fff; padding: 10px 20px; border-radius: 12px;
+      text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); transition: all 0.2s ease;
+    }
+    .btn-print:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+      border: 1px solid var(--slate-border); border-radius: 28px; padding: 48px; margin-bottom: 40px;
+      position: relative; overflow: hidden;
+    }
+    .hero-card::before {
+      content: ''; position: absolute; top: -100px; right: -100px; width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.25), transparent 70%); border-radius: 50%;
+    }
+    .hero-title { font-size: 2.75rem; font-weight: 800; line-height: 1.15; margin: 12px 0; }
+    .gradient-text { background: linear-gradient(90deg, #60a5fa, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .card {
+      background: var(--dark-card); border: 1px solid var(--slate-border); border-radius: 20px;
+      padding: 24px; transition: transform 0.2s ease;
+    }
+    .card:hover { transform: translateY(-3px); }
+    .card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: #f8fafc; }
+    .card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+
+    .section-title {
+      font-size: 1.85rem; font-weight: 800; margin: 40px 0 20px;
+      display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--slate-border); padding-bottom: 12px;
+    }
+
+    .feature-box {
+      background: rgba(30, 41, 59, 0.6); border: 1px solid var(--slate-border);
+      border-radius: 18px; padding: 20px; margin-bottom: 16px;
+    }
+    .feature-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .feature-title { font-size: 1.1rem; font-weight: 700; color: #60a5fa; }
+    .feature-desc { font-size: 0.92rem; color: #cbd5e1; margin-bottom: 8px; }
+    .feature-meta { font-size: 0.85rem; color: var(--text-muted); }
+
+    table { width: 100%; border-collapse: collapse; margin: 20px 0 40px; background: var(--dark-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--slate-border); }
+    th, td { padding: 14px 18px; text-align: left; font-size: 0.9rem; }
+    th { background: rgba(37, 99, 235, 0.2); color: #93c5fd; font-weight: 700; border-bottom: 1px solid var(--slate-border); }
+    td { border-bottom: 1px solid rgba(51, 65, 85, 0.5); color: #cbd5e1; }
+    tr:last-child td { border-bottom: none; }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .header-bar, .btn-print { display: none; }
+      .hero-card, .card, .feature-box, table { background: #fff; border-color: #cbd5e1; color: #000; }
+      .hero-title, .gradient-text, .section-title, .feature-title { color: #000 !important; -webkit-text-fill-color: #000; }
+      .feature-desc, .feature-meta, .card p, td { color: #334155 !important; }
+      .page-break { page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <div class="header-bar">
+      <div>
+        <span class="badge badge-primary">Infosys Springboard 7.0</span>
+        <strong style="margin-left: 10px; font-size: 0.95rem;">Project Presentation Master Deck</strong>
+      </div>
+      <button onclick="window.print()" class="btn-print">🖨️ Print / Save as PDF</button>
+    </div>
+
+    <!-- Hero Card -->
+    <div class="hero-card">
+      <span class="badge badge-primary">Full-Stack SaaS Platform</span>
+      <h1 class="hero-title">SocialPilot: <span class="gradient-text">Enterprise Social Media & Campaign Hub</span></h1>
+      <p style="font-size: 1.05rem; color: #cbd5e1; max-width: 800px; margin-bottom: 24px;">
+        A high-performance social scheduling, AI-assisted content creation, and cross-channel campaign management platform with complete 4-role multi-tenant governance.
+      </p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <span class="badge badge-admin">🛡️ Administrator</span>
+        <span class="badge badge-biz">💼 Business User</span>
+        <span class="badge badge-mktg">📊 Marketing Team</span>
+        <span class="badge badge-creator">✏️ Content Creator</span>
+      </div>
+    </div>
+
+    <!-- Four Role Cards -->
+    <div class="card-grid">
+      <div class="card">
+        <span class="badge badge-admin">Role 1</span>
+        <h3 style="margin-top: 8px;">Administrator</h3>
+        <p>User provisioning, content moderation flags, live infrastructure health telemetry, and immutable security audit logs.</p>
+      </div>
+      <div class="card">
+        <span class="badge badge-biz">Role 2</span>
+        <h3 style="margin-top: 8px;">Business User</h3>
+        <p>OAuth channel links, subscription tier manager, resource quota meters, payment wallet, and printable tax receipts.</p>
+      </div>
+      <div class="card">
+        <span class="badge badge-mktg">Role 3</span>
+        <h3 style="margin-top: 8px;">Marketing Team</h3>
+        <p>Campaign strategy with dynamic timeline auto-evaluation, engagement heatmaps, audience metrics, and executive reports.</p>
+      </div>
+      <div class="card">
+        <span class="badge badge-creator">Role 4</span>
+        <h3 style="margin-top: 8px;">Content Creator</h3>
+        <p>Free AI caption studio, high-res graphic generator, multi-channel mockup previews, drafts vault, and publishing queue.</p>
+      </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Section 1: Administrator -->
+    <h2 class="section-title"><span>🛡️</span> 1. Administrator Features (Governance & Security)</h2>
+    
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">User Governance & Provisioning (/admin/users)</span>
+        <span class="badge badge-admin">Security</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Full tenant oversight. Admins search, filter by role, instantly promote/demote user permissions, and suspend accounts with real-time database synchronization.</p>
+    </div>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">Content Moderation & Policy Compliance (/admin/content)</span>
+        <span class="badge badge-admin">Compliance</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Protects brand integrity. Inspects cross-platform post copies, target networks, and media attachments with 1-click Approve or Flag/Reject actions.</p>
+    </div>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">System Health & Telemetry Console (/admin/system-health)</span>
+        <span class="badge badge-admin">DevOps</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Real-time monitoring of backend API latency, database response times, server memory consumption, active worker threads, and an audit events log.</p>
+    </div>
+
+    <!-- Section 2: Business -->
+    <h2 class="section-title"><span>💼</span> 2. Business User Features (Billing & Subscription Hub)</h2>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">Enterprise Billing & Quotas Hub (/billing)</span>
+        <span class="badge badge-biz">Exclusively Business</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Strict RBAC protection keeps financial controls limited to business owners. Includes live resource quota gauges, tier plan comparisons (Starter, Growth, Scale, Enterprise), monthly/annual toggle (-20% discount), modular add-on boosters, credit card wallet, and printable tax receipts.</p>
+    </div>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">OAuth Social Channels Integration (/social-accounts)</span>
+        <span class="badge badge-biz">Channels</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Central hub to link Twitter/X, LinkedIn, Facebook, Instagram, YouTube, and Pinterest accounts with live connection indicators and follower counters.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Section 3: Marketing -->
+    <h2 class="section-title"><span>📊</span> 3. Marketing Team Features (Campaigns & Heatmaps)</h2>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">Campaign Strategy & Auto-Timeline Engine (/campaigns)</span>
+        <span class="badge badge-mktg">Timeline Engine</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Automatically synchronizes campaign statuses. Evaluates event dates to mark campaigns as <b>Active</b> (ongoing), <b>Upcoming</b> (future), or <b>Completed</b> (concluded). Features live creation preview cards and filter tabs with dynamic counts.</p>
+    </div>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">BI Analytics & 24x7 Best-Time-To-Post Heatmap (/analytics)</span>
+        <span class="badge badge-mktg">Analytics</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Recharts-powered graphs comparing reach, impressions, audience engagement, and an interactive 24x7 hour-by-day activity heatmap.</p>
+    </div>
+
+    <!-- Section 4: Creator -->
+    <h2 class="section-title"><span>✏️</span> 4. Content Creator Features (AI Studio & Mockups)</h2>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">Free AI Text & Graphic Generation Studio (/posts/create)</span>
+        <span class="badge badge-creator">AI Studio</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Embedded Pollinations AI generates viral captions, tone adjustments, hashtags, and high-resolution visuals across multiple aspect ratios without requiring paid API keys.</p>
+    </div>
+
+    <div class="feature-box">
+      <div class="feature-header">
+        <span class="feature-title">Interactive Drag-and-Drop Calendar & Queue (/calendar, /queue)</span>
+        <span class="badge badge-creator">Scheduling</span>
+      </div>
+      <p class="feature-desc"><b>Why & How:</b> Visual monthly planner allowing creators to drag posts to reschedule dates, with a chronological publishing queue and live mockups.</p>
+    </div>
+
+    <!-- Tech Stack Table -->
+    <h2 class="section-title"><span>⚙️</span> 5. Technical Stack & Architecture</h2>
+    <table>
+      <thead>
+        <tr><th>Layer</th><th>Framework / Library</th><th>Architectural Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Frontend Framework</b></td><td>Next.js 16 + React 19</td><td>App Router, Server/Client components, dynamic routing, Turbopack</td></tr>
+        <tr><td><b>Styling & Tokens</b></td><td>TailwindCSS + Custom Tokens</td><td>Multi-theme system (Dark, System, Peach, Cream), Glassmorphism</td></tr>
+        <tr><td><b>Data Charts</b></td><td>Recharts</td><td>Interactive area charts, bar graphs, and engagement heatmaps</td></tr>
+        <tr><td><b>Backend Framework</b></td><td>FastAPI (Python 3.11+)</td><td>Asynchronous REST API, Swagger/OpenAPI interactive documentation</td></tr>
+        <tr><td><b>Databases</b></td><td>SQLite (SQLAlchemy) + MongoDB (Motor)</td><td>Dual SQL (ACID transactions) + NoSQL (media metadata) architecture</td></tr>
+        <tr><td><b>Security</b></td><td>JWT Bearer + Passlib Bcrypt</td><td>Cryptographic token signing, password hashing, and strict RBAC guards</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+</body>
+</html>
