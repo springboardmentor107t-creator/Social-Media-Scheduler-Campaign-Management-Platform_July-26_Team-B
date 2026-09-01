@@ -141,11 +141,14 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
-b a c k e n d / 
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
+
+# SQLite / Local Databases
+*.db-journal
+socialpilot.db
 
 # Python virtual environment
 venv/

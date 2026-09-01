@@ -6,6 +6,26 @@ from app.core.config import settings
 from app.database import engine, Base, close_mongo_connection
 from app.routers import auth, posts, schedules, calendar, queue, workflow, logs, analytics, campaigns, reports, audience, social_accounts, users, admin
 
+import asyncio
+import logging
+
+async def background_publishing_worker():
+    while True:
+        try:
+            await asyncio.sleep(8)
+            from app.database import SessionLocal
+            db = SessionLocal()
+            try:
+                from app.services.workflow_service import AutomatedWorkflowService
+                workflow = AutomatedWorkflowService(db)
+                await workflow.run_publishing_cycle()
+            finally:
+                db.close()
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logging.getLogger("uvicorn").error(f"Background publisher error: {e}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize relational database tables
@@ -18,13 +38,20 @@ async def lifespan(app: FastAPI):
         from app.core.seed import seed_data
         seed_data(db)
     except Exception as e:
-        import logging
         logging.getLogger("uvicorn").error(f"Failed to seed data: {e}")
     finally:
         db.close()
         
+    # Start automated background publishing task
+    worker_task = asyncio.create_task(background_publishing_worker())
+    
     yield
     # Shutdown resources
+    worker_task.cancel()
+    try:
+        await worker_task
+    except asyncio.CancelledError:
+        pass
     close_mongo_connection()
 
 app = FastAPI(

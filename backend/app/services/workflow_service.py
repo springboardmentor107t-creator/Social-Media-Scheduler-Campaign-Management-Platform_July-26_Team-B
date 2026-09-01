@@ -82,3 +82,41 @@ class AutomatedWorkflowService:
             "recurring_schedules_generated": recurring_count,
             "timestamp": now.isoformat()
         }
+
+    async def publish_single_post(self, post_id: int) -> Dict[str, Any]:
+        """
+        Immediately dispatches and publishes a single post by ID.
+        """
+        # Find or create schedule record
+        schedule = (
+            self.db.query(ScheduledPost)
+            .filter(ScheduledPost.post_id == post_id)
+            .order_by(ScheduledPost.id.desc())
+            .first()
+        )
+        if not schedule:
+            schedule = self.schedule_repo.create(ScheduledPostCreate(
+                post_id=post_id,
+                scheduled_time=datetime.now(timezone.utc),
+                status=ScheduleStatus.PENDING
+            ))
+
+        self.schedule_repo.update_status(schedule.id, ScheduleStatus.PROCESSING)
+        queue_items = self.queue_service.enqueue_post(schedule.id)
+
+        all_success = True
+        results = []
+        for item in queue_items:
+            res = await self.queue_service.process_queue_item(item.id)
+            results.append(res)
+            if not res.get("success"):
+                all_success = False
+
+        if all_success:
+            self.schedule_repo.update_status(schedule.id, ScheduleStatus.COMPLETED)
+            self.post_repo.update_status(post_id, PostStatus.PUBLISHED)
+            return {"success": True, "post_id": post_id, "status": "published", "results": results}
+        else:
+            self.schedule_repo.update_status(schedule.id, ScheduleStatus.FAILED)
+            self.post_repo.update_status(post_id, PostStatus.FAILED)
+            return {"success": False, "post_id": post_id, "status": "failed", "results": results}

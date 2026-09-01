@@ -9,6 +9,14 @@ from app.core.security import get_current_user
 
 router = APIRouter(prefix="/reports", tags=["Report Generation"])
 
+@router.get("", response_model=Dict[str, Any])
+def get_reports_root(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    service = ReportService(db)
+    return service.get_overall_performance_report(current_user.id)
+
 @router.get("/campaigns/{campaign_id}", response_model=Dict[str, Any])
 def get_campaign_report(
     campaign_id: int,

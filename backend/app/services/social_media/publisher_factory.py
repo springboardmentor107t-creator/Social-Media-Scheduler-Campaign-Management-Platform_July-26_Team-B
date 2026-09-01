@@ -4,6 +4,8 @@ from app.services.social_media.instagram import InstagramService
 from app.services.social_media.facebook import FacebookService
 from app.services.social_media.linkedin import LinkedInService
 from app.services.social_media.twitter import TwitterService
+from app.services.social_media.youtube import YouTubeService
+from app.services.social_media.pinterest import PinterestService
 
 class PublisherFactory:
     _services: Dict[str, SocialMediaPlatform] = {
@@ -12,6 +14,8 @@ class PublisherFactory:
         "linkedin": LinkedInService(),
         "twitter": TwitterService(),
         "x": TwitterService(),
+        "youtube": YouTubeService(),
+        "pinterest": PinterestService(),
     }
 
     @classmethod

@@ -70,6 +70,11 @@ export async function cancelPost(id) {
   return response.data;
 }
 
+export async function publishPostNow(id) {
+  const response = await api.post(`/api/v1/posts/${id}/publish-now`);
+  return response.data;
+}
+
 export async function getPostById(id) {
   const response = await api.get(`/api/v1/posts/${id}`);
   return response.data;

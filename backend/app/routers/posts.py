@@ -12,13 +12,13 @@ from app.core.security import get_current_user
 router = APIRouter(prefix="/posts", tags=["Post Management"])
 
 @router.post("", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
-def create_post(
+async def create_post(
     post_in: PostCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     service = PostService(db)
-    return service.create_post(current_user.id, post_in)
+    return await service.create_post(current_user.id, post_in)
 
 @router.post("/draft", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
 def save_draft(
@@ -30,7 +30,7 @@ def save_draft(
     return service.save_draft(current_user.id, post_in)
 
 @router.get("", response_model=List[PostResponse])
-def list_posts(
+async def list_posts(
     status: Optional[str] = Query(None),
     status_filter: Optional[str] = Query(None),
     current_user: User = Depends(get_current_user),
@@ -44,46 +44,55 @@ def list_posts(
         except ValueError:
             pass
     service = PostService(db)
-    return service.get_user_posts(current_user.id, status=status_enum)
+    return await service.get_user_posts(current_user.id, status=status_enum)
 
 @router.get("/{post_id}", response_model=PostResponse)
-def get_post(
+async def get_post(
     post_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     service = PostService(db)
-    return service.get_post(post_id, current_user.id)
+    return await service.get_post(post_id, current_user.id)
 
 @router.put("/{post_id}", response_model=PostResponse)
-def update_post(
+async def update_post(
     post_id: int,
     post_in: PostUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     service = PostService(db)
-    return service.update_post(post_id, current_user.id, post_in)
+    return await service.update_post(post_id, current_user.id, post_in)
 
 @router.patch("/{post_id}", response_model=PostResponse)
-def patch_post(
+async def patch_post(
     post_id: int,
     post_in: PostUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     service = PostService(db)
-    return service.update_post(post_id, current_user.id, post_in)
+    return await service.update_post(post_id, current_user.id, post_in)
+
+@router.post("/{post_id}/publish-now", response_model=PostResponse)
+async def publish_post_now(
+    post_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    service = PostService(db)
+    return await service.publish_immediately(post_id, current_user.id)
 
 @router.post("/{post_id}/retry", response_model=PostResponse)
-def retry_post_endpoint(
+async def retry_post_endpoint(
     post_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     service = PostService(db)
     post_in = PostUpdate(status=PostStatus.SCHEDULED)
-    return service.update_post(post_id, current_user.id, post_in)
+    return await service.update_post(post_id, current_user.id, post_in)
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(

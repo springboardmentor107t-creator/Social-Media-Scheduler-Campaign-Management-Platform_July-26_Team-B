@@ -275,7 +275,7 @@ function CreatePostContent() {
       finalScheduledAt = `${scheduledDate}T${scheduledTime}:00`;
       finalStatus = "scheduled";
     } else if (mode === "now") {
-      finalStatus = "scheduled";
+      finalStatus = "published";
       finalScheduledAt = new Date().toISOString();
     }
 

@@ -7,6 +7,7 @@ import api from "../../../lib/api";
 import DashboardShell from "../../../components/DashboardShell";
 import StatusBadge from "../../../components/StatusBadge";
 import Link from "next/link";
+import { resolveCampaignTimeline } from "../page";
 
 export default function CampaignDetailPage() {
  const router = useRouter();
@@ -218,16 +219,8 @@ export default function CampaignDetailPage() {
  );
  }
 
- // Calculate campaign timeline percentage
- let timelinePercentage = 0;
- if (campaign.start_date && campaign.end_date) {
- const start = new Date(campaign.start_date).getTime();
- const end = new Date(campaign.end_date).getTime();
- const now = Date.now();
- if (now >= end) timelinePercentage = 100;
- else if (now <= start) timelinePercentage = 0;
- else timelinePercentage = Math.round(((now - start) / (end - start)) * 100);
- }
+ const timeline = resolveCampaignTimeline(campaign);
+ const timelinePercentage = timeline.progressPct;
 
  // Calculate total metrics from database analytics records
  const totalImpressions = analytics.reduce((acc, curr) => acc + (curr.impressions || 0), 0);
@@ -269,7 +262,7 @@ export default function CampaignDetailPage() {
  <h1 className="text-3xl font-bold tracking-tight text-foreground ">
  {campaign.name}
  </h1>
- <StatusBadge status={campaign.status} />
+ <StatusBadge status={timeline.badgeStatus} />
  </div>
  <p className="text-sm text-foreground-muted ">
  {campaign.description || "No description provided."}
@@ -278,26 +271,26 @@ export default function CampaignDetailPage() {
  
  {/* Status actions */}
  <div className="flex flex-wrap gap-2">
- {campaign.status !== "active" && (
+ {timeline.status !== "active" && (
  <button
  onClick={() => handleUpdateStatus("active")}
- className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all"
+ className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all cursor-pointer"
  >
  Activate
  </button>
  )}
- {campaign.status === "active" && (
+ {timeline.status === "active" && (
  <button
  onClick={() => handleUpdateStatus("paused")}
- className="bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all"
+ className="bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all cursor-pointer"
  >
  Pause
  </button>
  )}
- {campaign.status !== "completed" && (
+ {timeline.status !== "completed" && (
  <button
  onClick={() => handleUpdateStatus("completed")}
- className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all"
+ className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm active:scale-95 transition-all cursor-pointer"
  >
  Complete
  </button>
@@ -306,15 +299,25 @@ export default function CampaignDetailPage() {
  </div>
 
  {/* Timeline and Progress */}
- {campaign.start_date && campaign.end_date && (
+ {(campaign.start_date || campaign.end_date) && (
  <div className="space-y-2">
  <div className="flex items-center justify-between text-xs font-semibold text-foreground-muted">
- <span>Timeline Progress</span>
- <span>{timelinePercentage}% ({new Date(campaign.start_date).toLocaleDateString()} - {new Date(campaign.end_date).toLocaleDateString()})</span>
+ <span>Timeline Status: <strong className="text-foreground">{timeline.label}</strong></span>
+ <span>
+ {timelinePercentage}% (
+ {campaign.start_date ? new Date(campaign.start_date).toLocaleDateString() : "TBD"} -{" "}
+ {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString() : "TBD"})
+ </span>
  </div>
  <div className="w-full h-2.5 bg-background-secondary rounded-full overflow-hidden">
  <div
- className="h-full bg-gradient-brand transition-all duration-500"
+ className={`h-full transition-all duration-500 ${
+ timeline.status === "completed"
+ ? "bg-purple-500"
+ : timeline.status === "active"
+ ? "bg-gradient-brand"
+ : "bg-blue-500"
+ }`}
  style={{ width: `${timelinePercentage}%` }}
  />
  </div>

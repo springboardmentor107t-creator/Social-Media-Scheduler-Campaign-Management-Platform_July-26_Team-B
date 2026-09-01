@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import join
@@ -25,15 +25,25 @@ class ScheduledPostRepository:
     def get_by_id(self, schedule_id: int) -> Optional[ScheduledPost]:
         return self.db.query(ScheduledPost).filter(ScheduledPost.id == schedule_id).first()
 
-    def get_due_schedules(self, target_time: datetime) -> List[ScheduledPost]:
-        return (
-            self.db.query(ScheduledPost)
-            .filter(
-                ScheduledPost.status == ScheduleStatus.PENDING,
-                ScheduledPost.scheduled_time <= target_time
-            )
-            .all()
-        )
+    def get_due_schedules(self, target_time: Optional[datetime] = None) -> List[ScheduledPost]:
+        pending = self.db.query(ScheduledPost).filter(ScheduledPost.status == ScheduleStatus.PENDING).all()
+        now_utc = target_time or datetime.now(timezone.utc)
+        now_naive = datetime.now()
+        due = []
+        for s in pending:
+            st = s.scheduled_time
+            if not st:
+                due.append(s)
+                continue
+            if getattr(st, "tzinfo", None) is not None:
+                if st <= (now_utc if now_utc.tzinfo else now_utc.replace(tzinfo=timezone.utc)):
+                    due.append(s)
+            else:
+                # Compare against naive now or stripped UTC now
+                target_naive = now_utc.replace(tzinfo=None) if getattr(now_utc, "tzinfo", None) else now_utc
+                if st <= target_naive or st <= now_naive:
+                    due.append(s)
+        return due
 
     def get_calendar_schedules(self, user_id: int, start_date: datetime, end_date: datetime) -> List[ScheduledPost]:
         return (
