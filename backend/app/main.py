@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.database import engine, Base, close_mongo_connection
-from app.routers import auth, posts, schedules, calendar, queue, workflow, logs, analytics, campaigns, reports, audience, social_accounts, users, admin
+from app.routers import auth, posts, schedules, calendar, queue, workflow, logs, analytics, campaigns, reports, audience, social_accounts, users, admin, realtime, external_apis
 
 import asyncio
 import logging
@@ -62,7 +62,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Adjust as necessary for production
+    allow_origins=["*"],  # Allow all origins for local testing and websockets
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -83,6 +83,8 @@ app.include_router(audience.router, prefix=settings.API_V1_STR)
 app.include_router(social_accounts.router, prefix=settings.API_V1_STR)
 app.include_router(users.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
+app.include_router(external_apis.router, prefix=settings.API_V1_STR)
+app.include_router(realtime.router)
 
 @app.get("/")
 def read_root():

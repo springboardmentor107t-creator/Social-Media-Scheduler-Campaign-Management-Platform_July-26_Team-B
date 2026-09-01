@@ -209,7 +209,17 @@ function CreatePostContent() {
     setContent((prev) => (prev ? `${prev} ${emoji}` : emoji));
   }
 
-  // Simulated Streaming AI Tone Optimizer with Typewriter effect
+  // AI Image Studio State
+  const [aiImagePrompt, setAiImagePrompt] = useState("");
+  const [aiAspect, setAiAspect] = useState("1:1");
+  const [aiImageLoading, setAiImageLoading] = useState(false);
+
+  // Trending Content Ideas State
+  const [trendingIdeas, setTrendingIdeas] = useState(null);
+  const [loadingIdeas, setLoadingIdeas] = useState(false);
+  const [showIdeas, setShowIdeas] = useState(false);
+
+  // Real-Time Free AI Content Generator Endpoint Integration
   async function handleAiTone(tone) {
     if (!content.trim()) {
       setError("Please write some initial draft text first to optimize with AI.");
@@ -217,17 +227,31 @@ function CreatePostContent() {
     }
     setAiLoading(true);
     setError("");
-    setAiFeedback(`✨ AI synthesizing ${tone} copy variations...`);
+    setAiFeedback(`✨ AI synthesizing ${tone} copy via Pollinations AI...`);
 
-    let targetText = content.trim();
-    if (tone === "professional") {
-      targetText = `Executive Brief: ${content.trim()}\n\nKey Strategic Driver: Aligning cross-functional marketing initiatives for measurable, high-velocity ROI.`;
-    } else if (tone === "engaging") {
-      targetText = `🚀 Big announcement! ${content.trim()}\n\n👇 What are your thoughts on this strategy? Drop a comment below!`;
-    } else if (tone === "punchy") {
-      targetText = `⚡ Action Hook: ${content.trim()}\n\n• Impact 1: Maximum audience reach\n• Impact 2: Rapid execution cycle\n• Impact 3: Scale 3x faster`;
-    } else if (tone === "promotional") {
-      targetText = `🔥 Limited Spotlight: ${content.trim()}\n\n👉 Discover the full breakdown via the link in bio today!`;
+    let targetText = "";
+    try {
+      const res = await api.post("/api/v1/external/ai-generate", {
+        prompt: content.trim(),
+        tone: tone,
+        platform: activePreviewPlatform,
+        include_hashtags: true,
+      });
+      targetText = res.data?.generated_text || "";
+    } catch (e) {
+      console.error("AI call fallback", e);
+    }
+
+    if (!targetText) {
+      if (tone === "professional") {
+        targetText = `Executive Brief: ${content.trim()}\n\nKey Strategic Driver: Aligning cross-functional marketing initiatives for measurable ROI.\n#SocialPilot #Leadership`;
+      } else if (tone === "engaging") {
+        targetText = `🚀 ${content.trim()}\n\n👇 What are your thoughts on this strategy? Drop a comment below!\n#SocialPilot #Growth`;
+      } else if (tone === "punchy") {
+        targetText = `⚡ Action Hook: ${content.trim()}\n\n• Point 1: Fast Execution\n• Point 2: Rapid Scaling\n#Growth #Strategy`;
+      } else {
+        targetText = `🔥 Spotlight: ${content.trim()}\n\n👉 Discover the full breakdown via the link in bio!\n#Promotion #Marketing`;
+      }
     }
 
     setContent("");
@@ -243,6 +267,49 @@ function CreatePostContent() {
         setTimeout(() => setAiFeedback(""), 3500);
       }
     }, 15);
+  }
+
+  // Real-Time Free AI Image Generator Integration
+  async function handleGenerateAiImage() {
+    const promptToUse = aiImagePrompt.trim() || content.trim() || "modern tech office startup digital growth";
+    setAiImageLoading(true);
+    setError("");
+    try {
+      const res = await api.post("/api/v1/external/ai-image", {
+        prompt: promptToUse,
+        aspect_ratio: aiAspect,
+      });
+      if (res.data?.image_url) {
+        const newMedia = {
+          name: `AI_Graphic_${Date.now()}.png`,
+          size: "AI Generated",
+          preview: res.data.image_url,
+          type: "image",
+        };
+        setMediaFiles((prev) => [...prev, newMedia]);
+        setAiImagePrompt("");
+        setSuccess("🎨 Free AI Graphic generated & attached!");
+        setTimeout(() => setSuccess(""), 3000);
+      }
+    } catch (err) {
+      setError("Failed to generate AI image asset.");
+    } finally {
+      setAiImageLoading(false);
+    }
+  }
+
+  // Real-Time Trending Ideas Integration
+  async function handleFetchTrendingIdeas() {
+    setLoadingIdeas(true);
+    setShowIdeas(true);
+    try {
+      const res = await api.get("/api/v1/external/trending-ideas");
+      setTrendingIdeas(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingIdeas(false);
+    }
   }
 
   async function handleSubmit(e) {
@@ -449,17 +516,26 @@ function CreatePostContent() {
               </div>
             </div>
 
-            {/* AI Assistant Quick Bar */}
+            {/* AI Assistant Quick Bar & Trending Ideas Trigger */}
             <div className="p-3.5 rounded-2xl bg-surface-raised/50 border border-surface-border space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
                   <span>✨</span> AI Tone Assistant:
                 </span>
-                {aiFeedback && (
-                  <span className="text-[11px] font-semibold text-emerald-500 animate-pulse">
-                    {aiFeedback}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleFetchTrendingIdeas}
+                    className="text-[11px] font-bold text-amber-500 hover:underline flex items-center gap-1"
+                  >
+                    <span>🔥</span> Inspire Me (Live News & Quotes)
+                  </button>
+                  {aiFeedback && (
+                    <span className="text-[11px] font-semibold text-emerald-500 animate-pulse">
+                      {aiFeedback}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 {Object.keys(AI_TONE_TEMPLATES).map((tone) => (
@@ -475,6 +551,51 @@ function CreatePostContent() {
                 ))}
               </div>
             </div>
+
+            {/* Live Trending Content Ideas Drawer */}
+            {showIdeas && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-extrabold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>📡</span> Real-Time Trending News & Quote Ideas
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowIdeas(false)}
+                    className="text-xs text-foreground-muted hover:text-foreground"
+                  >
+                    ✕ Close
+                  </button>
+                </div>
+                {loadingIdeas ? (
+                  <p className="text-xs text-foreground-muted italic animate-pulse">Fetching live stories from HackerNews API...</p>
+                ) : (
+                  <div className="space-y-2">
+                    {trendingIdeas?.featured_quote && (
+                      <div
+                        onClick={() => setContent(`"${trendingIdeas.featured_quote.quote}" — ${trendingIdeas.featured_quote.author}`)}
+                        className="p-2.5 rounded-xl bg-surface border border-amber-500/30 text-xs hover:border-amber-500 cursor-pointer transition-all"
+                      >
+                        <p className="font-semibold text-foreground">💡 Quote Idea (Click to Insert):</p>
+                        <p className="text-foreground-muted italic mt-0.5">"{trendingIdeas.featured_quote.quote}"</p>
+                      </div>
+                    )}
+                    <div className="space-y-1.5">
+                      {trendingIdeas?.trending_stories?.slice(0, 3).map((story) => (
+                        <div
+                          key={story.id}
+                          onClick={() => setContent(`Trending Insight: ${story.title}\n\nRead full story: ${story.url}\n#TechNews #Innovation`)}
+                          className="p-2.5 rounded-xl bg-surface border border-surface-border hover:border-amber-500 text-xs cursor-pointer transition-all flex items-center justify-between"
+                        >
+                          <span className="font-semibold text-foreground truncate pr-2">🔥 {story.title}</span>
+                          <span className="text-[10px] text-amber-500 font-bold whitespace-nowrap">+ Insert</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Textarea */}
             <div className="relative">
@@ -531,11 +652,48 @@ function CreatePostContent() {
           <div className="card-surface p-5 rounded-3xl border border-surface-border space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold uppercase tracking-wider text-foreground-muted">
-                3. Media Assets & Visuals
+                3. Media Assets & Visual Studio
               </label>
               <span className="text-xs text-foreground-muted font-medium">
-                Supports JPG, PNG, MP4, WebM (Max 50MB)
+                Upload or Generate Free AI Graphic
               </span>
+            </div>
+
+            {/* Free AI Image Generator Input Studio */}
+            <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold text-brand-500 flex items-center gap-1.5">
+                  <span>🎨</span> Free AI Graphic Generator Studio
+                </span>
+                <span className="text-[10px] text-brand-400 font-bold">Powered by Pollinations AI</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <input
+                  type="text"
+                  value={aiImagePrompt}
+                  onChange={(e) => setAiImagePrompt(e.target.value)}
+                  placeholder="Describe graphic (e.g. futuristic digital marketing growth chart)..."
+                  className="sm:col-span-7 p-2.5 rounded-xl bg-surface border border-surface-border text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+                />
+                <select
+                  value={aiAspect}
+                  onChange={(e) => setAiAspect(e.target.value)}
+                  className="sm:col-span-3 p-2.5 rounded-xl bg-surface border border-surface-border text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500/50"
+                >
+                  <option value="1:1">1:1 Square (Instagram/FB)</option>
+                  <option value="16:9">16:9 Landscape (Twitter/X)</option>
+                  <option value="4:5">4:5 Portrait (Feed)</option>
+                  <option value="9:16">9:16 Vertical (Stories/Reels)</option>
+                </select>
+                <button
+                  type="button"
+                  disabled={aiImageLoading}
+                  onClick={handleGenerateAiImage}
+                  className="sm:col-span-2 px-3 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                >
+                  {aiImageLoading ? "Generating..." : "⚡ Generate"}
+                </button>
+              </div>
             </div>
 
             {/* Drag & Drop Canvas */}
