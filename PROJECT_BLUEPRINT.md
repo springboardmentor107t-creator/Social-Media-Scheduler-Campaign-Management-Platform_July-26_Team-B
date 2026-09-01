@@ -476,4 +476,4 @@ erDiagram
 - [x] **Interactive Drag-and-Drop Calendar Matrix:** Visual calendar planner with interactive drag-to-reschedule functionality.
 - [x] **Strategic Campaign Orchestration & ROI:** Campaign budget tracking, progress bars, and cross-channel attribution.
 - [x] **BI Analytics & Heatmap Telemetry:** Recharts engagement visualizers, 24x7 best-time-to-post heatmap, and audience demographics.
-- [x] **Admin Governance & Diagnostic Audit Console:** Interactive Real-Time Integration Hub (`/admin/integrations`), system health monitoring, and immutable security audit log trails.
+- [x] **Admin Governance & Diagnostic Audit Console:** System Health & Audit Telemetry console (`/admin/system-health`), infrastructure metrics, and immutable security audit log trails.
